@@ -32,20 +32,7 @@ class App {
         // copy the template folder
         await this.copyBaseFiles();
         
-        // only do this when the program is really running, not while debugging locally, because it will 
-        // screw up the cli package file
-        if (!this.isDebugEnv()) {
-            // open cli template package.json
-            var pk = require(path.resolve(this.cliPath(), 'template', 'package.json'));
-
-            // and add them to the host app
-            var pkdeps = _get(pk, 'dependencies');
-            if (pkdeps) {
-                for (const key in pkdeps) {
-                    execSync('npm install ' + key);
-                }
-            }
-        }
+        this.installTemplateDeps();
     }
 
     async copyBaseFiles() {
@@ -67,6 +54,26 @@ class App {
             path.resolve(this.cliPath(), 'template/src'), 
             path.resolve(answers.dest, 'src' + (this.cliPath() === this.hostPath() ? 'xxx': ''))
         );
+    }
+
+    installTemplateDeps() {
+        // NOTE: only do this when the program is really running, not while debugging locally, because it will 
+        // screw up the cli package file
+        
+        // open cli template package.json
+        var pk = require(path.resolve(this.cliPath(), 'template', 'package.json'));
+
+        // and add them to the host app
+        var pkdeps = _get(pk, 'dependencies');
+        if (pkdeps) {
+            for (const key in pkdeps) {
+                if (!this.isDebugEnv()) {
+                    execSync('npm install ' + key);
+                } else {
+                    console.log('installing ' + key);
+                }
+            }
+        }
     }
 }
 
