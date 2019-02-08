@@ -17,7 +17,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Template",
-            "program": "${workspaceFolder}/template/src/index.js",
+            "program": "${workspaceFolder}/template/src/koa-index.js",
             "outputCapture": "std"
         }
     ]
