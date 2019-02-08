@@ -31,7 +31,7 @@ class App {
 
         // copy the template folder
         await this.copyBaseFiles();
-        
+
         this.installTemplateDeps();
     }
 
@@ -51,15 +51,15 @@ class App {
         // NOTE: if the cli and host are the same is because we are testing by debugging locally
         // if so, add a suffix so we don't interfere with the cli code
         await fs.copy(
-            path.resolve(this.cliPath(), 'template/src'), 
-            path.resolve(answers.dest, 'src' + (this.cliPath() === this.hostPath() ? 'xxx': ''))
+            path.resolve(this.cliPath(), 'template/src'),
+            path.resolve(answers.dest, 'src' + (this.cliPath() === this.hostPath() ? 'test': ''))
         );
     }
 
     installTemplateDeps() {
-        // NOTE: only do this when the program is really running, not while debugging locally, because it will 
+        // NOTE: only do this when the program is really running, not while debugging locally, because it will
         // screw up the cli package file
-        
+
         // open cli template package.json
         var pk = require(path.resolve(this.cliPath(), 'template', 'package.json'));
 

@@ -1,22 +1,16 @@
 #!/usr/bin/env node
 
-const commander = require('commander');
 const process = require('process');
 
 const App = require('./app.js');
 
 var app = new App();
 
-commander
-    .version(process.env.npm_package_version)
-    .description('CLI to create/update a NodeJs Koa web api/application');
-
-commander
-    .command('init')
-    .description('Initializes a new app')
-    .action(async () => {
+// command args
+const argv = require('yargs')
+    .usage('Usage: $0 <command>')
+    .command('init', 'initializes/updates an nodejs application', (yargs) => {
         app.init();
-    });
-
-commander
-    .parse(process.argv);
+    })
+    .help()
+    .argv;
