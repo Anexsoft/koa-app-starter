@@ -15,7 +15,7 @@ commander
     .command('init')
     .description('Initializes a new app')
     .action(async () => {
-        await app.init();
+        app.init();
     });
 
 commander
