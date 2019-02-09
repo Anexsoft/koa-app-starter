@@ -1,5 +1,6 @@
-logs
-node_modules
 !.vscode/launch.json
 .vscode
-dist
+_test
+logs
+node_modules
+*.tgz

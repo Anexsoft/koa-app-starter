@@ -19,7 +19,11 @@ const argv = require('yargs')
 async function doInit() {
     var root = _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
-    await app.init(answers.dest);
+    if (!answers.overwrite) {
+        process.exit(0);
+    }
+
+    await app.init(answers);
 }
 
 function _checkCwdRoot() {
@@ -33,12 +37,26 @@ function _checkCwdRoot() {
 }
 
 function _questions(root) {
+    // if we are running thru debugger on the same app, this will 
+    // screw up this app, therefore append a dist folder so it will not interfere
+    if (root.indexOf('koa-app-starter') >= 0) {
+        root = path.resolve(root, '_test');
+        console.warn('Warning: you are located in the koa-app-starter');
+    }
+
     return [
         {
             type: 'input',
             message: 'Where should the files be copied?',
             name: 'dest',
             default: root
+        },
+        {
+            type: 'confirm',
+            message: 'The destination already exists, do you want to overwrite?',
+            name: 'overwrite',
+            default: false,
+            when: (ans) => { return fs.existsSync(ans.dest); }
         }
     ];
 }

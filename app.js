@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
+const fg = require('fast-glob');
 
 class App {
     /**
@@ -30,29 +31,42 @@ class App {
         return this.cliPath() === this.runPath();
     }
 
-    async init(destPath) {
-        console.log('Initializing to ' + destPath);
-
-        // if we are running thru debugger on the same app, this will screw up the app
-        if (destPath.indexOf('koa-app-starter') >= 0) {
-
-            destPath = path.resolve(destPath, 'dist');
-        }
+    async init(options) {
+        console.log('> Starting');
 
         // copy the template folder
-        this.copyFiles(destPath);
+        await this.buildFolder(options.dest);
 
         // npm install all dependencies that were found in the template
         this.installTemplateDeps();
 
-        // await (() => {});
+        console.log('> Finished');
     }
 
-    copyFiles(destPath) {
-        fs.copySync(
-            this.templatePath(),
-            destPath
-        );
+    async buildFolder(destPath) {
+        let src = this.templatePath();
+
+        let options = {
+            dot: true,
+            ignore: [
+                '!**/node_modules',
+                '!**/package*.json',
+                '!**/readme.txt'
+            ]
+        };
+
+        let entries = await fg(path.join(src, '**'), options);
+        for (let i = 0; i < entries.length; i++) {
+            let entry = entries[i];
+
+            // remove the source dir
+            let relpath = path.relative(src, entry);
+
+            // copy file
+            let destfile = path.resolve(destPath, relpath);
+            await fs.copy(entry, destfile);
+            console.log(`>> Copied ${destfile}`);
+        }
     }
 
     installTemplateDeps() {
@@ -68,14 +82,18 @@ class App {
             { list: _get(pkg, 'devDependencies'), cmd: 'npm install --save-dev' },
         ];
 
+        // NOTE: why not just copy the template package.json? because, by doing a fresh npm install of the
+        // same packages, we will always get the latest version of each library.
         instarray.forEach(elem => {
             if (elem.list) {
                 for (const key in elem.list) {
                     var cmd = elem.cmd + ' ' + key;
+                    console.log('>> Exec ' + cmd);
                     if (!this.isDebugEnv()) {
-                        execSync(cmd + ' ' + key);
+                        // inherit stdio so the output shows up
+                        execSync(cmd, { stdio: 'inherit' });
                     } else {
-                        console.log('<mock> ' + cmd + ' ' + key);
+                        console.log('<mock> ' + cmd);
                     }
                 }
             }
