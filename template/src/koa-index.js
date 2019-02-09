@@ -3,7 +3,7 @@
 // ================ requires ===================
 const Koa = require('koa');
 const ip = require('ip');
-const koaAppInit = require('./koa-app.js');
+const koaapp = require('./koa-app.js');
 
 // command args
 const argv = require('yargs')
@@ -21,7 +21,7 @@ koaApp.config = [];
 argv.module = argv.module || './api/api.js';
 
 // init
-koaAppInit(koaApp, argv.module, argv.loglevel);
+koaapp(koaApp, argv.module, argv.loglevel);
 
 // run
 var listenToPort = argv.port;

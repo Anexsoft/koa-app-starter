@@ -13,6 +13,7 @@ function init(koaApp, moduleEntryPath, loglevel) {
     // pre-processing
     initRequestInfo(koaApp);
 
+    loglevel = loglevel || 'info';
     initLog(koaApp, loglevel);
     initAuth(koaApp);
 
@@ -37,7 +38,7 @@ function initRequestInfo(koaApp) {
 function initLog(koaApp, loglevel) {
     // logging, tracer
     var kplmw = KoaPinoLogger({
-        level: loglevel || 'info'
+        level: loglevel
     });
     koaApp.use(kplmw);
     koaApp.log = kplmw.logger;
@@ -59,15 +60,15 @@ function initRequestExec(koaApp) {
 
 function initApi(koaApp, moduleEntryPath) {
     // load the api module from the index root
-    const apiInit = require.main.require(moduleEntryPath);
-    if (!apiInit) {
-        throw new Error(`Api ${moduleEntryPath} could not be found`);
+    const apisetup = require.main.require(moduleEntryPath);
+    if (!apisetup || typeof(apisetup) !== "function") {
+        throw new Error(`Api ${moduleEntryPath} could not be found or it was not a function`);
     } else {
         koaApp.log.debug(`Api ${moduleEntryPath} found`);
     }
 
-    // call the api init
-    apiInit(koaApp);
+    // call the api setup
+    apisetup(koaApp);
     koaApp.log.info(`Api ${moduleEntryPath} loaded`);
 }
 
