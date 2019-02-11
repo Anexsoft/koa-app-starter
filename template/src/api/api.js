@@ -31,9 +31,11 @@ function setup(koaApp, config) {
 }
 
 function _setupConfig(koaApp, config) {
-    config.options = _merge({
+    var defaultOptions = {
         // TODO: set the default options which vary across apis
-    }, config.options);
+    };
+
+    config.options = _merge(defaultOptions, config.options);
 
     // store the options for quick reference
     koaApp.config[config.name] = config;
@@ -45,13 +47,17 @@ function _setupRoutes(koaApp) {
     koaApp.router = koaRouter;
 
     // TODO: setup routes
-    koaRouter
-        .get('/xxx/:id', getXXXById);
+    __setupRoutes(koaApp, koaRouter);
 
     koaApp
         .use(koaRouter.routes())
         .use(koaRouter.allowedMethods());
     koaApp.log.debug('Routes configured');
+}
+
+function __setupRoutes(koaApp, koaRouter) {
+    koaRouter
+        .get('/xxx/:id', getXXXById);
 }
 
 async function getXXXById(ctx, next) {
