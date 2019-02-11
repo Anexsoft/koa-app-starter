@@ -1,6 +1,6 @@
 {
-  "name": "koa-app-starter",
-  "version": "0.0.1",
+  "name": "@juntoz/koa-app-starter",
+  "version": "1.0.0",
   "description": "CLI to start a nodejs web api or application",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/katlimruiz/koa-app-starter.git"
+    "url": "git+https://github.com/juntoz/koa-app-starter.git"
   },
   "keywords": [
     "koa"
@@ -16,9 +16,9 @@
   "author": "Kat Lim Ruiz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/katlimruiz/koa-app-starter/issues"
+    "url": "https://github.com/juntoz/koa-app-starter/issues"
   },
-  "homepage": "https://github.com/katlimruiz/koa-app-starter#readme",
+  "homepage": "https://github.com/juntoz/koa-app-starter#readme",
   "dependencies": {
     "child_process": "^1.0.2",
     "fast-glob": "^2.2.6",
