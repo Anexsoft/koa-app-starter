@@ -15,5 +15,46 @@ By providing a CLI to do so, we can have a shared base which we can adapt and ye
 ## Opinionated
 This is definitely an opinionated starter based on my own experience and what I'm continuously learning about NodeJs.
 
+## "Two projects" = Two package.json
+Note that the root package.json is for the cli.
+
+There is a folder called template which is the starter template and has its own package.json.
+
+In order to run either of the two from VS Code, you need to define like this:
+```
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Main",
+            "program": "${workspaceFolder}/index.js",
+            "args": ["init"],
+            "outputCapture": "std",
+            "console": "externalTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Template",
+            "program": "${workspaceFolder}/template/src/koa-index.js",
+            "args": ["--port", "3010"],
+            "outputCapture": "std"
+        }
+    ]
+}
+```
+
+The first node/launch is for the CLI, and the second is to run the template koa application.
+
+The CLI needs to run on an outside console because it requires user input (and VS Code Debug console does not support input).
+
+## How to modify the template folder?
+You should treat as if it were a separate application (it has its own package.json, and you can certainly update it with npm install xxx, and so on).
+
 ## Feedback
 All feedback and contributions are welcome
