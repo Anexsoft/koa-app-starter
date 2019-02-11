@@ -15,6 +15,27 @@ By providing a CLI to do so, we can have a shared base which we can adapt and ye
 ## Opinionated
 This is definitely an opinionated starter based on my own experience and what I'm continuously learning about NodeJs.
 
+## How to use it?
+
+1. Create your project using `npm init` as usual. This will create the package.json for your project.
+
+2. Add the package to your project
+```
+npm install @juntos/koa-app-starter
+```
+
+3. Go to where your project's package.json file is (root folder).
+
+4. And type in `koa-app-starter`
+
+(if it does not work, type in `node node_modules/@juntoz/koa-app-starter/index.js init`)
+
+5. The CLI will detect if the folder already exists or not
+
+6. The last step is to read the template package.json and do an `npm install` of each package into your project package.json. This ensures that you download the latest version of each library.
+
+7. Do a `node src/koa-index.js --port 3000`, and you have your new app running!
+
 ## "Two projects" = Two package.json
 Note that the root package.json is for the cli.
 
