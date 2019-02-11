@@ -2,6 +2,7 @@
 
 // ================ requires ===================
 const Koa = require('koa');
+const KoaPinoLogger = require('koa-pino-logger');
 const ip = require('ip');
 const koaapp = require('./koa-app.js');
 
@@ -20,13 +21,22 @@ koaApp.config = [];
 // set the default module
 argv.module = argv.module || './api/api.js';
 
+// set logging
+var loglevel = argv.loglevel || 'info';
+var kplmw = KoaPinoLogger({
+    level: loglevel
+});
+koaApp.use(kplmw);
+koaApp.log = kplmw.logger;
+koaApp.log.debug('Logging configured');
+
 // init
-koaapp(koaApp, argv.module, argv.loglevel);
+koaapp(koaApp, argv.module);
 
 // run
 var listenToPort = argv.port;
 koaApp.listen(listenToPort, () => {
-    console.info(`Server ${ip.address()} listening on port ${listenToPort}`);
+    koaApp.log.info(`Server ${ip.address()} listening on port ${listenToPort}`);
 });
 
 // cleanup

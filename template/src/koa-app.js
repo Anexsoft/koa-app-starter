@@ -1,20 +1,17 @@
 'use strict';
 
 // ================ requires ===================
-const KoaPinoLogger = require('koa-pino-logger');
 const xRequestId = require('koa-x-request-id');
 const koaBodyParser = require('koa-bodyparser');
-const koaLastRequest = require('koa-last-request');
-const koaHealthProbe = require('koa-health-probe');
+const koaLastRequest = require('@juntoz/koa-last-request');
+const koaHealthProbe = require('@juntoz/koa-health-probe');
 
 const AuthAdapter = require('./common/AuthAdapter.js');
 
-function init(koaApp, moduleEntryPath, loglevel) {
+function init(koaApp, moduleEntryPath) {
     // pre-processing
     initRequestInfo(koaApp);
 
-    loglevel = loglevel || 'info';
-    initLog(koaApp, loglevel);
     initAuth(koaApp);
 
     // in-processing
@@ -35,16 +32,6 @@ function initRequestInfo(koaApp) {
     koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
 }
 
-function initLog(koaApp, loglevel) {
-    // logging, tracer
-    var kplmw = KoaPinoLogger({
-        level: loglevel
-    });
-    koaApp.use(kplmw);
-    koaApp.log = kplmw.logger;
-    koaApp.log.debug('Logging configured');
-}
-
 function initAuth(koaApp) {
     // configure authentication before routes
     var aa = new AuthAdapter();
@@ -61,7 +48,7 @@ function initRequestExec(koaApp) {
 function initApi(koaApp, moduleEntryPath) {
     // load the api module from the index root
     const apisetup = require.main.require(moduleEntryPath);
-    if (!apisetup || typeof(apisetup) !== "function") {
+    if (!apisetup || typeof apisetup !== 'function') {
         throw new Error(`Api ${moduleEntryPath} could not be found or it was not a function`);
     } else {
         koaApp.log.debug(`Api ${moduleEntryPath} found`);
