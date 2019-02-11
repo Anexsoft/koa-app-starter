@@ -4,3 +4,4 @@ _test
 logs
 node_modules
 *.tgz
+dist
