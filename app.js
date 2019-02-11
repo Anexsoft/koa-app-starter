@@ -64,7 +64,7 @@ class App {
 
             // copy file
             let destfile = path.resolve(destPath, relpath);
-            await fs.copy(entry, destfile);
+            await fs.copy(entry, destfile, { overwrite: true });
             console.log(`>> Copied ${destfile}`);
         }
     }
