@@ -3,30 +3,47 @@
 const passport = require('koa-passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
+const _merge = require('lodash.merge');
 
 function passportSetup(koaApp, options) {
     // setup passport
     koaApp.use(passport.initialize());
 
     // setup the strategy as jwt
+    options = _merge({
+        // extraction mode (Authorization Bearer, Headers, etc)
+        extractJwtFrom: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // who issued the token
+        whoIssuedTheToken: null,
+        // secret key in plain text to decrypt the token
+        keyToEncryptTheToken: null,
+        // who was going to use the token
+        whoUsesTheToken: null,
+        // function to convert from payload to a user object
+        fnPayloadToUser: null
+    }, options);
+
     var jwtOptions = {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: options.extractJwtFrom,
         issuer: options.whoIssuedTheToken,
         secretOrKey: options.keyToEncryptTheToken,
         audience: options.whoUsesTheToken
     };
 
-    passport.use(new JwtStrategy(jwtOptions, _createPassportVerifyDelegate(options)));
+    passport.use(new JwtStrategy(jwtOptions, _createPassportVerifyDelegate(koaApp, options)));
 
     koaApp.log.debug('Passport jwt configured');
 }
 
-function _createPassportVerifyDelegate(options) {
+function _createPassportVerifyDelegate(koaApp, options) {
+    // We need to do this pattern so the method signature remains the same yet still use the given callback
     return function passportVerify(payload, doneCallback) {
         var user = null;
 
-        if (options.payloadToUser) {
-            user = options.payloadToUser(payload);
+        if (options.fnPayloadToUser) {
+            user = options.fnPayloadToUser(payload);
+        } else {
+            koaApp.log.warn('passport: fnPayloadToUser was not set, no authentication is possible.');
         }
 
         try {
