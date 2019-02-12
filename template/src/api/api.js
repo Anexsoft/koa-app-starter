@@ -6,7 +6,7 @@ const _merge = require('lodash.merge');
 const loadConfig = require('../common/load-config.js');
 const koaMsSql = require('../common/koa-get-mssql');
 const db = require('./db.js');
-const passport_auth = require('../common/passport-adapter.js').passport_auth;
+const passportAuth = require('../common/passport-adapter.js').passportAuth;
 
 /**
  * Setup the api (config and routes)
@@ -56,26 +56,32 @@ function _setupRoutes(koaApp) {
 }
 
 function __setupRoutes(koaApp, koaRouter) {
-    // TODO: this is just an example, you can remove it if you want to
+    // TODO: these are examples, you should use them as basis, and then delete them
 
     // unprotected endpoint
     koaRouter
         .get('/xxx/:id', async function(ctx, next) {
-            ctx.log.debug('getXXXById-api: start', ctx.params);        
-
-            // to call db
-            // var xxxData = await db.getXXXById(ctx.app, xxxId);
-
-            ctx.body = { id: ctx.params['id'], name: 'my name is ' + ctx.params['id']};
+            ctx.log.debug('getXXXById-api: start', ctx.params);
+            var xxxData = await db.getXXXById(ctx.app, ctx.params['id']);
+            if (xxxData) {
+                ctx.body = xxxData;
+            } else {
+                ctx.status = 404;
+                ctx.body = {};
+            }
 
             await next();
         });
 
-    // protected endpoint
+    // protected endpoint, note that 'passportAuth' is used as a pre-step to the real action
     koaRouter
-        .get('/xxx2/:id', passport_auth, async function(ctx, next) {
-            ctx.log.debug('getXXX2ById-api: start', ctx.params);        
-            ctx.body = { id: ctx.params['id'], name: 'my real name is ' + ctx.params['id']};        
+        .get('/xxx2/:id', passportAuth, async function(ctx, next) {
+            ctx.log.debug('getXXX2ById-api: start', ctx.params);
+            ctx.body = {
+                id: ctx.params['id'],
+                name: 'my real name is ' + ctx.params['id']
+            };
+
             await next();
         });
 }

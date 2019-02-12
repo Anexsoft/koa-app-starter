@@ -7,7 +7,7 @@ const koaBodyParser = require('koa-bodyparser');
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 
-const passportAdapter = require('./common/passport-adapter.js');
+const passportSetup = require('./common/passport-adapter.js').passportSetup;
 
 function init(koaApp, moduleEntryPath) {
     // pre-processing
@@ -35,7 +35,7 @@ function _initRequestPrepare(koaApp) {
 }
 
 function _initAuth(koaApp) {
-    passportAdapter.passport_setup(koaApp, {
+    passportSetup(koaApp, {
         whoIssuedTheToken: 'juntoz.com',
         keyToEncryptTheToken: 'mykey',
         whoUsesTheToken: 'juntoz.com'
