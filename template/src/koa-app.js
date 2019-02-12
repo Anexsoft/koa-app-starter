@@ -3,28 +3,30 @@
 // ================ requires ===================
 const xRequestId = require('koa-x-request-id');
 const koaBodyParser = require('koa-bodyparser');
+
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 
-const AuthAdapter = require('./common/AuthAdapter.js');
+const passportAdapter = require('./common/passport-adapter.js');
 
 function init(koaApp, moduleEntryPath) {
     // pre-processing
-    initRequestInfo(koaApp);
+    _initRequestPrepare(koaApp);
 
-    initAuth(koaApp);
+    // authenticator
+    _initAuth(koaApp);
 
     // in-processing
-    initRequestExec(koaApp);
+    _initRequestExec(koaApp);
 
     // load api
-    initApi(koaApp, moduleEntryPath);
+    _initApi(koaApp, moduleEntryPath);
 
     // post-processing
-    initTools(koaApp);
+    _initTools(koaApp);
 }
 
-function initRequestInfo(koaApp) {
+function _initRequestPrepare(koaApp) {
     // set request id
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
 
@@ -32,20 +34,21 @@ function initRequestInfo(koaApp) {
     koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
 }
 
-function initAuth(koaApp) {
-    // configure authentication before routes
-    var aa = new AuthAdapter();
-    aa.setup(koaApp);
-    koaApp.authAdapter = aa;
+function _initAuth(koaApp) {
+    passportAdapter.passport_setup(koaApp, {
+        whoIssuedTheToken: 'juntoz.com',
+        keyToEncryptTheToken: 'mykey',
+        whoUsesTheToken: 'juntoz.com'
+    });
     koaApp.log.debug('Authentication configured');
 }
 
-function initRequestExec(koaApp) {
+function _initRequestExec(koaApp) {
     // configure the body parser which will help parse the body and turn in json objects. form fields, etc.
     koaApp.use(koaBodyParser());
 }
 
-function initApi(koaApp, moduleEntryPath) {
+function _initApi(koaApp, moduleEntryPath) {
     // load the api module from the index root
     const apisetup = require.main.require(moduleEntryPath);
     if (!apisetup || typeof apisetup !== 'function') {
@@ -59,7 +62,7 @@ function initApi(koaApp, moduleEntryPath) {
     koaApp.log.info(`Api ${moduleEntryPath} loaded`);
 }
 
-function initTools(koaApp) {
+function _initTools(koaApp) {
     koaHealthProbe(koaApp);
 }
 
