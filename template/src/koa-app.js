@@ -9,18 +9,20 @@ const koaHealthProbe = require('@juntoz/koa-health-probe');
 
 const passportSetup = require('./common/passport-adapter.js').passportSetup;
 
-function init(koaApp, moduleEntryPath) {
+function init(koaApp, appOptions) {
     // pre-processing
     _initRequestPrepare(koaApp);
 
     // authenticator
-    _initAuth(koaApp);
+    if (appOptions.authenticate && appOptions.authenticate.method !== 'none') {
+        _initAuth(koaApp, appOptions.authenticate);
+    }
 
     // in-processing
     _initRequestExec(koaApp);
 
     // load api
-    _initApi(koaApp, moduleEntryPath);
+    _initApi(koaApp, appOptions.moduleEntryPath);
 
     // post-processing
     _initTools(koaApp);
@@ -34,7 +36,7 @@ function _initRequestPrepare(koaApp) {
     koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
 }
 
-function _initAuth(koaApp) {
+function _initAuth(koaApp, authOptions) {
     passportSetup(koaApp, {
         whoIssuedTheToken: 'juntoz.com',
         keyToEncryptTheToken: 'mykey',

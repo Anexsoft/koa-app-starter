@@ -30,8 +30,16 @@ koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
 koaApp.log.debug('Logging configured');
 
-// init
-koaapp(koaApp, argv.module);
+// init application
+
+var appOptions = {
+    moduleEntryPath: argv.module,
+    authenticate: {
+        method: 'jwt'
+    }
+};
+
+koaapp(koaApp, appOptions);
 
 // run
 var listenToPort = argv.port;
