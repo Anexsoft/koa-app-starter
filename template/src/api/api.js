@@ -4,12 +4,11 @@ const KoaRouter = require('koa-router');
 const _merge = require('lodash.merge');
 
 const loadConfig = require('../common/load-config.js');
-
-const db = require('./db.js');
-
 const passportSetup = require('../passport/passport-adapter.js').setup;
 const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
 const passportJwtAuth = require('../passport/passport-strategy-jwt.js').auth;
+
+const db = require('./db.js');
 
 /**
  * Setup the api (config and routes)
