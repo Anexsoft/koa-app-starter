@@ -58,7 +58,7 @@ function _createPassportVerifyDelegate(koaApp, options) {
     };
 }
 
-async function passportAuth(ctx, next) {
+async function passportAuthJwt(ctx, next) {
     // https://github.com/rkusa/koa-passport/issues/125#issuecomment-462614317
     return passport.authenticate('jwt', { session: false }, async(err, user, info) => {
         if (err || !user) {
@@ -74,5 +74,5 @@ async function passportAuth(ctx, next) {
 
 module.exports = {
     passportSetup: passportSetup,
-    passportAuth: passportAuth
+    passportAuthJwt: passportAuthJwt
 };

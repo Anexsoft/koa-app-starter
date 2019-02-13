@@ -6,7 +6,7 @@ const _merge = require('lodash.merge');
 const loadConfig = require('../common/load-config.js');
 const koaMsSql = require('../common/koa-get-mssql');
 const db = require('./db.js');
-const passportAuth = require('../common/passport-adapter.js').passportAuth;
+const passportAuthJwt = require('../common/passport-adapter.js').passportAuthJwt;
 
 /**
  * Setup the api (config and routes)
@@ -73,9 +73,9 @@ function __setupRoutes(koaApp, koaRouter) {
             await next();
         });
 
-    // protected endpoint, note that 'passportAuth' is used as a pre-step to the real action
+    // protected endpoint, note that 'passportAuthJwt' is used as a pre-step to the real action
     koaRouter
-        .get('/xxx2/:id', passportAuth, async function(ctx, next) {
+        .get('/xxx2/:id', passportAuthJwt, async function(ctx, next) {
             ctx.log.debug('getXXX2ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],
