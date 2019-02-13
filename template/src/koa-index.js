@@ -52,7 +52,7 @@ if (argv.nohttps) {
     var sslOptions = null;
     try {
         // assume the cert folder is next to the current index file
-        var certfolder = path.resolve(__dirname, 'cert', argv.environment);
+        var certfolder = path.resolve(__dirname, 'cert', argv.env);
 
         sslOptions = {
             key: fs.readFileSync(path.resolve(certfolder, 'server.key')),
