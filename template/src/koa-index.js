@@ -10,6 +10,8 @@ const koaapp = require('./koa-app.js');
 const argv = require('yargs')
     .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level]')
     .demandOption(['port'])
+    .default('module', './api/api.js')
+    .default('loglevel', 'info')
     .argv;
 
 // global app
@@ -18,36 +20,24 @@ const koaApp = new Koa();
 // create a config repository so the APIs can store and quick reference that
 koaApp.config = [];
 
-// set the default module
-argv.module = argv.module || './api/api.js';
-
 // set logging
-var loglevel = argv.loglevel || 'info';
 var kplmw = KoaPinoLogger({
-    level: loglevel
+    level: argv.loglevel
 });
 koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
-koaApp.log.debug('Logging configured');
+koaApp.log.debug('index-logging: success');
 
 // init application
-
-var appOptions = {
-    moduleEntryPath: argv.module,
-    authenticate: {
-        method: 'jwt'
-    }
-};
-
-koaapp(koaApp, appOptions);
+koaapp(koaApp, argv.module);
 
 // run
 var listenToPort = argv.port;
 koaApp.listen(listenToPort, () => {
-    koaApp.log.info(`Server ${ip.address()} listening on port ${listenToPort}`);
+    koaApp.log.info(`index-start: success in ${ip.address()}:${listenToPort}`);
 });
 
 // cleanup
 require('node-cleanup')((exitCode, signal) => {
-    console.info(`Exit with code ${exitCode} and signal ${signal}`);
+    console.info(`index-end: with code ${exitCode} and signal ${signal}`);
 });

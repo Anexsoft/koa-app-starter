@@ -4,9 +4,13 @@ const KoaRouter = require('koa-router');
 const _merge = require('lodash.merge');
 
 const loadConfig = require('../common/load-config.js');
+
 const koaMsSql = require('../common/koa-get-mssql');
 const db = require('./db.js');
-const passportAuthJwt = require('../common/passport-adapter.js').passportAuthJwt;
+
+const passportSetup = require('../passport/passport-adapter.js').setup;
+const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
+const passportJwtAuth = require('../passport/passport-strategy-jwt.js').auth;
 
 /**
  * Setup the api (config and routes)
@@ -25,6 +29,9 @@ function setup(koaApp, config) {
     // read the config
     _setupConfig(koaApp, config);
 
+    // setup the authentication
+    _setupAuth(koaApp);
+
     // setup the routes
     _setupRoutes(koaApp);
 
@@ -33,13 +40,27 @@ function setup(koaApp, config) {
 }
 
 function _setupConfig(koaApp, config) {
+    // resolve options
     var defaultOptions = { /* TODO: set the default options for this api */ };
-
     config.options = _merge(defaultOptions, config.options);
 
-    // store the options for quick reference
+    // store the config for future reference
     koaApp.config[config.name] = config;
-    return koaApp.config[config.name];
+    koaApp.log.debug('api-config: success');
+}
+
+function _setupAuth(koaApp) {
+    // set the passport basis
+    var passport = passportSetup(koaApp);
+
+    // set the strategy
+    passportJwtSetup(passport, {
+        whoIssuedTheToken: 'juntoz.com',
+        keyToEncryptTheToken: 'mykey',
+        whoUsesTheToken: 'juntoz.com'
+    });
+
+    koaApp.log.debug('api-auth: success');
 }
 
 function _setupRoutes(koaApp) {
@@ -52,7 +73,7 @@ function _setupRoutes(koaApp) {
     koaApp
         .use(koaRouter.routes())
         .use(koaRouter.allowedMethods());
-    koaApp.log.debug('Routes configured');
+    koaApp.log.debug('api-routes: success');
 }
 
 function __setupRoutes(koaApp, koaRouter) {
@@ -75,7 +96,7 @@ function __setupRoutes(koaApp, koaRouter) {
 
     // protected endpoint, note that 'passportAuthJwt' is used as a pre-step to the real action
     koaRouter
-        .get('/xxx2/:id', passportAuthJwt, async function(ctx, next) {
+        .get('/xxx2/:id', passportJwtAuth, async function(ctx, next) {
             ctx.log.debug('getXXX2ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],
