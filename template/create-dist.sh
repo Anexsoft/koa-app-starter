@@ -12,3 +12,4 @@ cp ./src/koa-*.js dist
 cp -r ./src/common dist/common
 cp -r ./src/passport dist/passport
 cp -r ./src/api dist/api
+cp -r ./src/cert dist/cert

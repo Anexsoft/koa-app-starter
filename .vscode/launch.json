@@ -18,7 +18,7 @@
             "request": "launch",
             "name": "Launch Template",
             "program": "${workspaceFolder}/template/src/koa-index.js",
-            "args": ["--port", "3010"],
+            "args": ["--port", "3010", "--nohttps"],
             "outputCapture": "std"
         }
     ]

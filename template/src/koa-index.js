@@ -4,14 +4,21 @@
 const Koa = require('koa');
 const KoaPinoLogger = require('koa-pino-logger');
 const ip = require('ip');
+const koaSslify = require('koa-sslify').default;
+const fs = require('fs');
+const path = require('path');
+
 const koaapp = require('./koa-app.js');
 
 // command args
 const argv = require('yargs')
-    .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level]')
+    .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level] --nohttps --env [dev or stg or prod]')
     .demandOption(['port'])
+    .boolean('nohttps')
     .default('module', './api/api.js')
     .default('loglevel', 'info')
+    .default('nohttps', false)
+    .default('env', 'dev')
     .argv;
 
 // global app
@@ -28,14 +35,41 @@ koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
+koaApp.use(koaSslify());
+
 // init application
 koaapp(koaApp, argv.module);
 
 // run
 var listenToPort = argv.port;
-koaApp.listen(listenToPort, () => {
-    koaApp.log.info(`index-start: success in ${ip.address()}:${listenToPort}`);
-});
+var server = null;
+if (argv.nohttps) {
+    const http = require('http');
+    server = http.createServer(koaApp.callback()).listen(listenToPort);
+} else {
+    const https = require('https');
+
+    var sslOptions = null;
+    try {
+        // assume the cert folder is next to the current index file
+        var certfolder = path.resolve(__dirname, 'cert', argv.environment);
+
+        sslOptions = {
+            key: fs.readFileSync(path.resolve(certfolder, 'server.key')),
+            cert: fs.readFileSync(path.resolve(certfolder, 'server.crt'))
+        };
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            koaApp.log.error(`index-cert: cert file ${error.path} not found`);
+        }
+
+        throw error;
+    }
+
+    server = https.createServer(sslOptions, koaApp.callback()).listen(listenToPort);
+}
+
+koaApp.log.info(`index-start: success in ${argv.nohttps ? 'http' : 'https'}://${ip.address()}:${server.address().port}`);
 
 // cleanup
 require('node-cleanup')((exitCode, signal) => {
