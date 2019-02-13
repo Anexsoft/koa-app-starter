@@ -2,8 +2,8 @@
 
 const mssql = require('mssql');
 
-function koaGetMsSql(koaApp, connectionObject) {
-    koaApp.getDb = function() {
+function koaGetMsSql(koaApp, connectionObject, methodName) {
+    var fn = function() {
         if (!koaApp._db) {
             try {
                 if (typeof connectionObject === 'string') {
@@ -22,6 +22,12 @@ function koaGetMsSql(koaApp, connectionObject) {
 
         return koaApp._db;
     };
+
+    if (!methodName) {
+        koaApp.getDb = fn;
+    } else {
+        koaApp[methodName] = fn;
+    }
 }
 
 module.exports = koaGetMsSql;
