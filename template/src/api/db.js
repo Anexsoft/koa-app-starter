@@ -1,10 +1,16 @@
 'use strict';
 
 const mssql = require('mssql');
+const koaMsSql = require('../common/koa-get-mssql');
+
+function setup(koaApp, config) {
+    // setup the db connection
+    koaMsSql(koaApp, config.connectionObject);
+}
 
 async function getXXXById(koaApp, xxxId) {
     var sqlstr =
-        'select xxxId, twoIsoCod from XXX where xxxId = @xxxId';
+        'select xxxId from XXX where xxxId = @xxxId';
 
     koaApp.log.trace('getXXXById-db: sql', { sql: sqlstr, xxxId: xxxId });
 
@@ -23,5 +29,6 @@ async function getXXXById(koaApp, xxxId) {
 }
 
 module.exports = {
+    setup: setup,
     getXXXById: getXXXById
 };

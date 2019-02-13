@@ -5,7 +5,6 @@ const _merge = require('lodash.merge');
 
 const loadConfig = require('../common/load-config.js');
 
-const koaMsSql = require('../common/koa-get-mssql');
 const db = require('./db.js');
 
 const passportSetup = require('../passport/passport-adapter.js').setup;
@@ -35,8 +34,8 @@ function setup(koaApp, config) {
     // setup the routes
     _setupRoutes(koaApp);
 
-    // setup the db connection
-    koaMsSql(koaApp, config.connectionObject);
+    // setup the db layer
+    db.setup(koaApp, config);
 }
 
 function _setupConfig(koaApp, config) {
