@@ -5,7 +5,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const _merge = require('lodash.merge');
 
-function passportSetup(koaApp, options) {
+function passportSetup(koaApp, options, fnPayloadToUser) {
     // setup passport
     koaApp.use(passport.initialize());
 
@@ -19,8 +19,6 @@ function passportSetup(koaApp, options) {
         keyToEncryptTheToken: null,
         // who was going to use the token
         whoUsesTheToken: null,
-        // function to convert from payload to a user object
-        fnPayloadToUser: null
     }, options);
 
     var jwtOptions = {
@@ -30,29 +28,31 @@ function passportSetup(koaApp, options) {
         audience: options.whoUsesTheToken
     };
 
-    passport.use(new JwtStrategy(jwtOptions, _createPassportVerifyDelegate(koaApp, options)));
+    passport.use('jwt', new JwtStrategy(jwtOptions, _createPassportVerifyDelegate(koaApp, fnPayloadToUser)));
 
     koaApp.log.debug('Passport jwt configured');
 }
 
-function _createPassportVerifyDelegate(koaApp, options) {
+function _createPassportVerifyDelegate(koaApp, fnPayloadToUser) {
     // We need to do this pattern so the method signature remains the same yet still use the given callback
     return function passportVerify(payload, doneCallback) {
-        var user = null;
-
-        if (options.fnPayloadToUser) {
-            user = options.fnPayloadToUser(payload);
-        } else {
-            koaApp.log.warn('passport: fnPayloadToUser was not set, no authentication is possible.');
-        }
-
         try {
+            var user = null;
+            if (fnPayloadToUser) {
+                user = fnPayloadToUser(payload);
+            } else {
+                koaApp.log.warn('passport-verify: fnPayloadToUser was not set, no authentication is possible.');
+            }
+
             if (user) {
+                koaApp.log.trace('passport-verify: Success', user);
                 return doneCallback(null, user);
             } else {
+                koaApp.log.error('passport-verify: False');
                 return doneCallback(null, false);
             }
         } catch (error) {
+            koaApp.log.error('passport-verify: Error');
             return doneCallback(error, false);
         }
     };
@@ -62,12 +62,11 @@ async function passportAuthJwt(ctx, next) {
     // https://github.com/rkusa/koa-passport/issues/125#issuecomment-462614317
     return passport.authenticate('jwt', { session: false }, async(err, user, info) => {
         if (err || !user) {
-            ctx.app.log.error('passport: unauthorized', { err: err, user: user, info: info });
+            ctx.app.log.error('passport-auth: unauthorized', { err: err, user: user, info: info });
             ctx.throw(401, 'Unauthorized');
         }
 
-        // TODO: define what to do when the user was really authenticated, probably just move on to the next middleware.
-        ctx.app.log.debug('passport: authenticated ok', { user: user });
+        ctx.app.log.trace('passport-auth: success', { user: user });
         await next();
     })(ctx);
 };
