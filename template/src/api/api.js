@@ -53,7 +53,7 @@ function _setupAuth(koaApp) {
     var passport = passportSetup(koaApp);
 
     // set the strategy
-    passportJwtSetup(passport, {
+    passportJwtSetup(koaApp, passport, {
         whoIssuedTheToken: 'juntoz.com',
         keyToEncryptTheToken: 'mykey',
         whoUsesTheToken: 'juntoz.com'
