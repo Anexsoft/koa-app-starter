@@ -3,14 +3,15 @@
 // ================ requires ===================
 const Koa = require('koa');
 const KoaPinoLogger = require('koa-pino-logger');
-const ip = require('ip');
 const koaSslify = require('koa-sslify').default;
+const ip = require('ip');
 const fs = require('fs');
 const path = require('path');
 
 const koaapp = require('./koa-app.js');
 
 // command args
+// TIP: in dev environment, usually use nohttps=true so no cert is needed
 const argv = require('yargs')
     .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level] --nohttps --env [dev or stg or prod]')
     .demandOption(['port'])
@@ -54,10 +55,15 @@ if (argv.nohttps) {
         // assume the cert folder is next to the current index file
         var certfolder = path.resolve(__dirname, 'cert', argv.env);
 
+        var keypath = path.resolve(certfolder, 'server.key');
+        var crtpath = path.resolve(certfolder, 'server.crt');
+
         sslOptions = {
-            key: fs.readFileSync(path.resolve(certfolder, 'server.key')),
-            cert: fs.readFileSync(path.resolve(certfolder, 'server.crt'))
+            key: fs.readFileSync(keypath),
+            cert: fs.readFileSync(crtpath)
         };
+
+        koaApp.log.info(`index-cert: cert files success`, { paths: [keypath, crtpath] });
     } catch (error) {
         if (error.code === 'ENOENT') {
             koaApp.log.error(`index-cert: cert file ${error.path} not found`);
