@@ -36,7 +36,10 @@ koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
-koaApp.use(koaSslify());
+// setup sslify before any request, only if https is configured. This way any request is protected.
+if (!argv.nohttps) {
+    koaApp.use(koaSslify());
+}
 
 // init application
 koaapp(koaApp, argv.module);
