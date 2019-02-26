@@ -3,6 +3,7 @@
 // ================ requires ===================
 const xRequestId = require('koa-x-request-id');
 const koaBodyParser = require('koa-bodyparser');
+const koaRespTime = require('koa-response-time');
 
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
@@ -19,11 +20,15 @@ function init(koaApp, moduleEntryPath) {
 }
 
 function _initRequestPrepare(koaApp) {
+    // measure each response time
+    koaApp.use(koaRespTime());
+    koaApp.log.debug('app-koa-response-time: success');
+
     // set request id
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
     koaApp.log.debug('app-xrequestid: success');
 
-    // gather info about the last request, ignore the koa-health-probe default path
+    // gather info about the last request, configure to ignore the koa-health-probe default path
     koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
     koaApp.log.debug('app-lastrequest: success');
 
