@@ -73,6 +73,8 @@ class App {
         // NOTE: only do this when the program is really running, not while debugging locally, because it will
         // screw up the cli package file
 
+        console.log('> Starting to install npm dependencies (this could take some minutes). Please do not touch the console.');
+
         // open cli template package.json
         var pkg = require(path.resolve(this.templatePath(), 'package.json'));
 
@@ -82,8 +84,8 @@ class App {
             { list: _get(pkg, 'devDependencies'), cmd: 'npm install --save-dev' },
         ];
 
-        // NOTE: why not just copy the template package.json? because, by doing a fresh npm install of the
-        // same packages, we will always get the latest version of each library.
+        // NOTE: Why not just copy the template package.json and run a global npm install? Because by doing a fresh npm install of
+        // each package (without the version), we will always get the latest version of each library.
         instarray.forEach(elem => {
             if (elem.list) {
                 for (const key in elem.list) {
