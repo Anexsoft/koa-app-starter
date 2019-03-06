@@ -49,7 +49,8 @@ function _setupConfig(koaApp, config) {
 
 function _setupAuth(koaApp) {
     // set the passport basis
-    var passport = passportSetup(koaApp);
+    // TODO: change function to convert from payload to user object
+    var passport = passportSetup(koaApp, (payload) => payload);
 
     // set the strategy
     passportJwtSetup(koaApp, passport, {
@@ -85,8 +86,7 @@ function __setupRoutes(koaApp, koaRouter) {
             if (xxxData) {
                 ctx.body = xxxData;
             } else {
-                ctx.status = 404;
-                ctx.body = {};
+                ctx.throw(404);
             }
 
             await next();
