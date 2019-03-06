@@ -38,14 +38,14 @@ function _defaultOptions() {
 async function auth(ctx, next) {
     // https://github.com/rkusa/koa-passport/issues/125#issuecomment-462614317
 
-    // FIXME: strategy name should come from the setup
+    // FIXME: strategyName should come from the default options
     return passport.authenticate('jwt', { session: false }, async(err, user, info) => {
         if (err || !user) {
             ctx.app.log.error('passport-auth: unauthorized', { err: err, user: user, info: info });
-            ctx.throw(401, 'Unauthorized');
+            ctx.throw(401, 'passport-auth: unauthorized');
         }
 
-        ctx.app.log.trace('passport-auth: success', { user: user });
+        ctx.app.log.debug('passport-auth: success', { user: user });
         await next();
     })(ctx);
 };

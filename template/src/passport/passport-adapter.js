@@ -11,16 +11,14 @@ function setup(koaApp, fnPayloadToUser) {
 }
 
 function _createPassportVerifyDelegate(koaApp, fnPayloadToUser) {
+    if (!fnPayloadToUser) {
+        throw new Error('fnPayloadToUser is mandatory');
+    }
+
     // NOTE: We need to do this pattern so we can call the given callback and still comply with the passport-verify method signature
     return function passportVerify(payload, doneCallback) {
         try {
-            var user = null;
-            if (fnPayloadToUser) {
-                user = fnPayloadToUser(payload);
-            } else {
-                koaApp.log.warn('passport-verify: fnPayloadToUser was not set, no authentication is possible.');
-            }
-
+            var user = fnPayloadToUser(payload);
             if (user) {
                 koaApp.log.trace('passport-verify: success', user);
                 return doneCallback(null, user);
