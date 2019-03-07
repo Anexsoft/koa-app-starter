@@ -11,6 +11,18 @@
             "max": 500
         }
     },
+    "auth": {
+        "jwt": {
+            "whoIssuedTheToken": "<issuer>",
+            "keyToEncryptTheToken": "<key>",
+            "whoUsesTheToken": "<audience>"
+        }
+    },
+    "redis": {
+        "host": "<redis host>",
+        "port": "<redis port>",
+        "key": "<redis key>"
+    },
     "options": {
         "dummy": "<dummy>"
     }
