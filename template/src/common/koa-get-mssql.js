@@ -3,31 +3,28 @@
 const mssql = require('mssql');
 
 function koaGetMsSql(koaApp, connectionObject, methodName) {
-    var fn = function() {
-        if (!koaApp._db) {
-            try {
-                if (typeof connectionObject === 'string') {
-                    koaApp.log.debug('getDb: creating connection %s', connectionObject);
-                } else {
-                    koaApp.log.debug('getDb: creating connection', connectionObject);
-                }
+    if (!methodName) {
+        methodName = 'getDb';
+    }
 
-                koaApp._db = mssql.connect(connectionObject);
-                koaApp.log.info('getDb: connected');
+    var instName = '_' + methodName;
+
+    var fn = function() {
+        if (!koaApp[instName]) {
+            try {
+                koaApp.log.debug(`${methodName}: creating connection`, connectionObject);
+                koaApp[instName] = mssql.connect(connectionObject);
+                koaApp.log.info(`${methodName}: connected`);
             } catch (err) {
-                koaApp.log.error('getDb: connection error', err);
+                koaApp.log.error(`${methodName}: connection error`, err);
                 throw err;
             }
         }
 
-        return koaApp._db;
+        return koaApp[instName];
     };
 
-    if (!methodName) {
-        koaApp.getDb = fn;
-    } else {
-        koaApp[methodName] = fn;
-    }
+    koaApp[methodName] = fn;
 }
 
 module.exports = koaGetMsSql;

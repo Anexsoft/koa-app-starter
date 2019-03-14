@@ -78,7 +78,9 @@ if (argv.nohttps) {
     server = https.createServer(sslOptions, koaApp.callback()).listen(listenToPort);
 }
 
-koaApp.log.info(`index-start: success in ${argv.nohttps ? 'http' : 'https'}://${ip.address()}:${server.address().port}`);
+let protocol = argv.nohttps ? 'http' : 'https';
+let ipaddr = ip.address();
+koaApp.log.info(`index-start: success in ${protocol}://${ipaddr}:${listenToPort}`);
 
 // cleanup
 require('node-cleanup')((exitCode, signal) => {

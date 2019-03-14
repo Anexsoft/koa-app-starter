@@ -8,6 +8,11 @@ const passportSetup = require('../passport/passport-adapter.js').setup;
 const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
 const passportJwtAuth = require('../passport/passport-strategy-jwt.js').auth;
 
+// configKey: key to obtain the config object
+// eslint-disable-next-line no-unused-vars
+var configKey = null;
+
+// #### DEFINE HERE YOUR APIs AND DBs ####
 const db = require('./db.js');
 
 /**
@@ -43,19 +48,21 @@ function _setupConfig(koaApp, config) {
     config.options = _merge(defaultOptions, config.options);
 
     // store the config for future reference
-    koaApp.config[config.name] = config;
+    koaApp.config[configKey = config.name] = config;
     koaApp.log.debug('api-config: success');
 }
 
 function _setupAuth(koaApp) {
     // set the passport basis
-    var passport = passportSetup(koaApp);
+    // TODO: change function to convert from payload to user object
+    var passport = passportSetup(koaApp, (payload) => payload);
 
     // set the strategy
+    var jwtcfg = koaApp.config[configKey].auth.jwt;
     passportJwtSetup(koaApp, passport, {
-        whoIssuedTheToken: 'juntoz.com',
-        keyToEncryptTheToken: 'mykey',
-        whoUsesTheToken: 'juntoz.com'
+        whoIssuedTheToken: jwtcfg.whoIssuedTheToken,
+        keyToEncryptTheToken: jwtcfg.keyToEncryptTheToken,
+        whoUsesTheToken: jwtcfg.whoUsesTheToken
     });
 
     koaApp.log.debug('api-auth: success');
@@ -85,8 +92,7 @@ function __setupRoutes(koaApp, koaRouter) {
             if (xxxData) {
                 ctx.body = xxxData;
             } else {
-                ctx.status = 404;
-                ctx.body = {};
+                ctx.throw(404);
             }
 
             await next();
