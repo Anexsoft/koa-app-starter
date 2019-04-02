@@ -3,6 +3,7 @@
 // ================ requires ===================
 const xRequestId = require('koa-x-request-id');
 const koaBodyParser = require('koa-bodyparser');
+const compress = require('koa-compress');
 
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
@@ -30,6 +31,11 @@ function _initRequestPrepare(koaApp) {
     // configure the body parser which will help parse the body and turn in json objects. form fields, etc.
     koaApp.use(koaBodyParser());
     koaApp.log.debug('app-bodyparser: success');
+    koaApp.use(compress({
+        threshold: 2048,
+        flush: require('zlib').Z_SYNC_FLUSH
+    }));
+    koaApp.log.debug('app-compress: success');
 }
 
 function _initApi(koaApp, moduleEntryPath) {
