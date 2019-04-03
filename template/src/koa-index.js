@@ -46,10 +46,10 @@ koaapp(koaApp, argv.module);
 
 // run
 var listenToPort = argv.port;
-var server = null;
+
 if (argv.nohttps) {
     const http = require('http');
-    server = http.createServer(koaApp.callback()).listen(listenToPort);
+    http.createServer(koaApp.callback()).listen(listenToPort);
 } else {
     const https = require('https');
 
@@ -75,7 +75,7 @@ if (argv.nohttps) {
         throw error;
     }
 
-    server = https.createServer(sslOptions, koaApp.callback()).listen(listenToPort);
+    https.createServer(sslOptions, koaApp.callback()).listen(listenToPort);
 }
 
 let protocol = argv.nohttps ? 'http' : 'https';
