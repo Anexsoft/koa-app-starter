@@ -21,7 +21,7 @@ This is definitely an opinionated starter based on my own experience and what I'
 
 2. Add the package to your project
 ```
-npm install @juntos/koa-app-starter
+npm install @juntoz/koa-app-starter
 ```
 
 3. Go to where your project's package.json file is (root folder).
