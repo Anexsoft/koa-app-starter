@@ -24,13 +24,15 @@ function _initRequestPrepare(koaApp) {
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
     koaApp.log.debug('app-xrequestid: success');
 
-    // gather info about the last request, configure to ignore the koa-health-probe default path
+    // gather info about the last request, ignore the koa-health-probe default path
     koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
     koaApp.log.debug('app-lastrequest: success');
 
     // configure the body parser which will help parse the body and turn in json objects. form fields, etc.
     koaApp.use(koaBodyParser());
     koaApp.log.debug('app-bodyparser: success');
+
+    // configure compress for text and json content types
     koaApp.use(compress({
         threshold: 2048,
         flush: require('zlib').Z_SYNC_FLUSH

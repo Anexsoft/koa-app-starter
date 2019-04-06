@@ -20,19 +20,20 @@
     "lodash.get": "^4.4.2",
     "lodash.map": "^4.6.0",
     "lodash.merge": "^4.6.1",
-    "mssql": "^4.3.0",
+    "mssql": "^4.3.2",
     "node-cleanup": "^2.1.2",
     "passport-jwt": "^4.0.0",
     "path": "^0.12.7",
     "redis": "^2.8.0",
+    "statman-stopwatch": "^2.8.2",
     "util": "^0.11.1",
-    "yargs": "^12.0.5"
+    "yargs": "^13.2.1"
   },
   "devDependencies": {
-    "eslint": "^5.13.0",
+    "eslint": "^5.15.1",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0"
   }

@@ -18,17 +18,25 @@ function getRedisClient(ctx, redisOptions) {
         redisClient.on('connect', function() {
             ctx.log.info('redis-connect: connected %s:%d', redisOptions.host, redisOptions.port);
         });
+
         redisClient.on('error', function(err) {
             ctx.log.error('redis-error: ' + err);
         });
 
+        // redis implementation
         const { promisify } = require('util');
         redisClient.getAsync = promisify(redisClient.get).bind(redisClient);
         redisClient.setAsync = promisify(redisClient.set).bind(redisClient);
+
         redisClient.getAsyncObj = async function() {
             ctx.log.trace('redis-get-async: start');
             var str = await this.getAsync(...arguments);
             ctx.log.trace('redis-get-async: read');
+
+            if (!str) {
+                return null;
+            }
+
             try {
                 var o = JSON.parse(str);
                 ctx.log.debug('redis-get-async: parse');
