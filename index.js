@@ -5,25 +5,21 @@ const process = require('process');
 const path = require('path');
 const fs = require('fs-extra');
 
-const App = require('./app.js');
-
-var app = new App();
+const run = require('./app.js');
 
 // command args
 const argv = require('yargs')
-    .usage('Usage: $0 <command>')
-    .command('init', 'initializes/updates an nodejs application')
     .help()
     .argv;
 
 async function doInit() {
     var root = _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
-    if (!answers.overwrite) {
+    if (answers.overwrite === false) {
         process.exit(0);
     }
 
-    await app.init(answers);
+    await run(answers);
 }
 
 function _checkCwdRoot() {
@@ -37,14 +33,21 @@ function _checkCwdRoot() {
 }
 
 function _questions(root) {
-    // if we are running thru debugger on the same app, this will 
+    // if we are running thru debugger on the same app, this will
     // screw up this app, therefore append a dist folder so it will not interfere
     if (root.indexOf('koa-app-starter') >= 0) {
         root = path.resolve(root, '_test');
-        console.warn('Warning: you are located in the koa-app-starter');
+        console.info('Warning: you are located in the koa-app-starter root folder');
     }
 
     return [
+        {
+            type: 'list',
+            message: 'What type of app do you want (koa/simple)?',
+            name: 'apptype',
+            default: 'koa',
+            choices: ['koa', 'simple']
+        },
         {
             type: 'input',
             message: 'Where should the files be copied?',
@@ -56,7 +59,7 @@ function _questions(root) {
             message: 'The destination already exists, do you want to overwrite?',
             name: 'overwrite',
             default: false,
-            when: (ans) => { return fs.existsSync(ans.dest); }
+            when: function (ans) { return fs.existsSync(ans.dest); }
         }
     ];
 }
