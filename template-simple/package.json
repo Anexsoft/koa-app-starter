@@ -1,0 +1,28 @@
+{
+  "name": "koa-app-starter-template",
+  "version": "0.0.1",
+  "description": "Template for koa app. This package.json will only serve to copy over the dependencies.",
+  "main": "src/koa-index.js",
+  "author": "Kat Lim Ruiz",
+  "license": "MIT",
+  "dependencies": {
+    "ip": "^1.1.5",
+    "lodash.get": "^4.4.2",
+    "lodash.map": "^4.6.0",
+    "lodash.merge": "^4.6.1",
+    "node-cleanup": "^2.1.2",
+    "path": "^0.12.7",
+    "pino": "^5.12.2",
+    "statman-stopwatch": "^2.8.2",
+    "util": "^0.11.1",
+    "yargs": "^13.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.15.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0"
+  }
+}
