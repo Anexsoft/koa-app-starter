@@ -6,7 +6,8 @@ const _merge = require('lodash.merge');
 const loadConfig = require('../common/load-config.js');
 const passportSetup = require('../passport/passport-adapter.js').setup;
 const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
-const passportJwtAuth = require('../passport/passport-strategy-jwt.js').auth;
+const passportJwtAuthenticate = require('../passport/passport-strategy-jwt.js').authenticate;
+const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt.js').buildAuthorizeMw;
 
 // configKey: key to obtain the config object
 // eslint-disable-next-line no-unused-vars
@@ -98,10 +99,22 @@ function __setupRoutes(koaApp, koaRouter) {
             await next();
         });
 
-    // protected endpoint, note that 'passportAuthJwt' is used as a pre-step to the real action
+    // protected endpoint + user, note that 'passportJwtAuthenticate' is used as a pre-step to the real action
     koaRouter
-        .get('/xxx2/:id', passportJwtAuth, async function(ctx, next) {
+        .get('/xxx2/:id', passportJwtAuthenticate, async function(ctx, next) {
             ctx.log.debug('getXXX2ById-api: start', ctx.params);
+            ctx.body = {
+                id: ctx.params['id'],
+                name: 'my real name is ' + ctx.params['id']
+            };
+
+            await next();
+        });
+
+    // protected endpoint + roles, validate the user and also which roles that user has
+    koaRouter
+        .get('/xxx3/:id', passportJwtAuthenticate, passportJwtAuthorizeMw(['admin']), async function(ctx, next) {
+            ctx.log.debug('getXXX3ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],
                 name: 'my real name is ' + ctx.params['id']

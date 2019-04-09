@@ -35,22 +35,57 @@ function _defaultOptions() {
     };
 }
 
-async function auth(ctx, next) {
+async function authenticate(ctx, next) {
     // https://github.com/rkusa/koa-passport/issues/125#issuecomment-462614317
 
     // FIXME: strategyName should come from the default options
     return passport.authenticate('jwt', { session: false }, async(err, user, info) => {
         if (err || !user) {
-            ctx.app.log.error('passport-auth: unauthorized', { err: err, user: user, info: info });
-            ctx.throw(401, 'passport-auth: unauthorized');
+            ctx.log.error('passport-auth: user unauthenticated', { err: err, user: user, info: info });
+            ctx.throw(401, 'passport-auth: user unauthenticated');
         }
 
-        ctx.app.log.debug('passport-auth: success', { user: user });
+        ctx.log.debug('passport-auth: user authenticated', { user: user });
+
+        // NOTE: in theory passport should do this automatically, although I haven't found a way to do it
+        // The good part is by assigning this, ctx.isAuthenticated gives you true as expected
+        ctx.req.user = user;
+
         await next();
     })(ctx);
 };
 
+function buildAuthorizeMw(acceptRoles) {
+    if (!acceptRoles) {
+        acceptRoles = [];
+    }
+
+    if (typeof acceptRoles === 'string') {
+        acceptRoles = [acceptRoles];
+    }
+
+    if (acceptRoles.length === 0) {
+        // if no roles are needed, just return a dummy middleware
+        return async(ctx, next) => { await next(); };
+    } else {
+        return async(ctx, next) => {
+            if (ctx.req.user && ctx.req.user.roles) {
+                var rolesMatch = ctx.req.user.roles.filter(r => acceptRoles.indexOf(r) >= 0);
+                if (rolesMatch.length === 0) {
+                    ctx.log.error('passport-auth: user unauthorized', { user: ctx.req.user, expected: acceptRoles });
+                    ctx.throw(401, 'passport-auth: user unauthorized');
+                } else {
+                    ctx.log.debug('passport-auth: user authorized', { user: ctx.req.user, expected: acceptRoles });
+                }
+            }
+
+            await next();
+        };
+    }
+};
+
 module.exports = {
     setup: setup,
-    auth: auth
+    authenticate: authenticate,
+    buildAuthorizeMw: buildAuthorizeMw
 };
