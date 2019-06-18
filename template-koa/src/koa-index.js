@@ -3,7 +3,6 @@
 // ================ requires ===================
 const Koa = require('koa');
 const KoaPinoLogger = require('koa-pino-logger');
-const koaSslify = require('koa-sslify').default;
 const ip = require('ip');
 const fs = require('fs');
 const path = require('path');
@@ -38,6 +37,7 @@ koaApp.log.debug('index-logging: success');
 
 // setup sslify before any request, only if https is configured. This way any request is protected.
 if (!argv.nohttps) {
+    const koaSslify = require('koa-sslify').default;
     koaApp.use(koaSslify());
 }
 

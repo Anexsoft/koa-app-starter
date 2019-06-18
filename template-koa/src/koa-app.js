@@ -8,9 +8,11 @@ const compress = require('koa-compress');
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 
-function init(koaApp, moduleEntryPath) {
+function init(koaApp, moduleEntryPath, options) {
+    options = options || {};
+
     // pre-processing
-    _initRequestPrepare(koaApp);
+    _initRequestPrepare(koaApp, options);
 
     // api
     _initApi(koaApp, moduleEntryPath);
@@ -19,7 +21,7 @@ function init(koaApp, moduleEntryPath) {
     _initTools(koaApp);
 }
 
-function _initRequestPrepare(koaApp) {
+function _initRequestPrepare(koaApp, options) {
     // set request id
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
     koaApp.log.debug('app-xrequestid: success');
@@ -33,24 +35,26 @@ function _initRequestPrepare(koaApp) {
     koaApp.log.debug('app-bodyparser: success');
 
     // configure compress for text and json content types
-    koaApp.use(compress({
-        threshold: 2048,
-        flush: require('zlib').Z_SYNC_FLUSH
-    }));
-    koaApp.log.debug('app-compress: success');
+    if (options.compress) {
+        koaApp.use(compress({
+            threshold: 2048,
+            flush: require('zlib').Z_SYNC_FLUSH
+        }));
+        koaApp.log.debug('app-compress: success');
+    }
 }
 
 function _initApi(koaApp, moduleEntryPath) {
     // load the api module from the index root
-    const apisetup = require.main.require(moduleEntryPath);
-    if (!apisetup || typeof apisetup !== 'function') {
+    const moduleSetup = require.main.require(moduleEntryPath);
+    if (!moduleSetup || typeof moduleSetup !== 'function') {
         throw new Error(`app-api: ${moduleEntryPath} not found or not a function`);
     } else {
         koaApp.log.trace(`app-api: ${moduleEntryPath} found`);
     }
 
     // call the api setup
-    apisetup(koaApp);
+    moduleSetup(koaApp);
     koaApp.log.info(`app-api: ${moduleEntryPath} success`);
 }
 
