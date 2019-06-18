@@ -27,7 +27,7 @@ function _initRequestPrepare(koaApp, options) {
     koaApp.log.debug('app-xrequestid: success');
 
     // gather info about the last request, ignore the koa-health-probe default path
-    koaApp.use(koaLastRequest({ pathsToIgnore: ['tools/probe'] }));
+    koaApp.use(koaLastRequest({ pathsToIgnore: [koaHealthProbe.defaultPath] }));
     koaApp.log.debug('app-lastrequest: success');
 
     // configure the body parser which will help parse the body and turn in json objects. form fields, etc.

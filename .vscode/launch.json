@@ -21,7 +21,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Template",
-            "program": "${workspaceFolder}/template/src/koa-index.js",
+            "program": "${workspaceFolder}/template-koa/src/koa-index.js",
             "args": ["--port", "3010", "--nohttps"],
             "outputCapture": "std",
             "skipFiles": [
