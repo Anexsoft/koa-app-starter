@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
 const fg = require('fast-glob');
+const terser = require("terser");
 
 async function run(options) {
     console.log('> Starting');
@@ -54,13 +55,29 @@ async function _buildDestinationFolder(src, destPath) {
     for (let i = 0; i < entries.length; i++) {
         let entry = entries[i];
 
-        // remove the source dir
+        // remove the source dir and rebuild the path
         let relpath = path.relative(src, entry);
-
-        // copy file
         let destfile = path.resolve(destPath, relpath);
-        await fs.copy(entry, destfile, { overwrite: true });
-        console.log(`>> Copied ${destfile}`);
+
+        if (entry.endsWith('.js')) {
+            var mincode = {};
+            mincode[path.basename(entry)] = fs.readFileSync(entry, "utf8");
+            var uglycode = terser.minify(mincode);
+            if (uglycode.error) {
+                console.log(`>> Error to write ${destfile}: ` + JSON.stringify(uglycode.error));
+            } else {
+                try {
+                    fs.createFileSync(destfile);
+                    fs.writeFileSync(destfile, uglycode.code);
+                    console.log(`>> Copied and minified ${destfile}`);
+                } catch (ex) {
+                    console.log(`>> Error to write ${destfile}: ` + ex.message);
+                }
+            }
+        } else {
+            await fs.copy(entry, destfile, { overwrite: true });
+            console.log(`>> Copied ${destfile}`);
+        }
     }
 }
 
