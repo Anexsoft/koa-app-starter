@@ -70,7 +70,7 @@ function buildAuthorizeMw(acceptRoles) {
     } else {
         return async(ctx, next) => {
             if (ctx.req.user && ctx.req.user.roles) {
-                var rolesMatch = ctx.req.user.roles.filter(r => acceptRoles.indexOf(r) >= 0);
+                var rolesMatch = ctx.req.user.roles.filter(r => r === 'system' || acceptRoles.indexOf(r) >= 0);
                 if (rolesMatch.length === 0) {
                     ctx.log.error('passport-auth: user unauthorized', { user: ctx.req.user, expected: acceptRoles });
                     ctx.throw(401, 'passport-auth: user unauthorized');
