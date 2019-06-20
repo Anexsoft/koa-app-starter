@@ -1,7 +1,0 @@
-.editorconfig
-.git
-.gitignore
-.vscode
-azure-pipelines*.yml
-dist
-node_modules
