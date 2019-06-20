@@ -1,5 +1,6 @@
 'use strict';
 
+// *** simple app ***
 // ================ requires ===================
 const ip = require('ip');
 const fs = require('fs');
@@ -17,7 +18,7 @@ const argv = require('yargs')
     .default('env', 'dev')
     .argv;
 
-// set logging
+// set logging, in this case we are using pino library directly (not koa-pino)
 var logger = pino({
     level: argv.loglevel
 });

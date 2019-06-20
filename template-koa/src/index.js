@@ -1,5 +1,6 @@
 'use strict';
 
+// *** koa app ***
 // ================ requires ===================
 const Koa = require('koa');
 const KoaPinoLogger = require('koa-pino-logger');
