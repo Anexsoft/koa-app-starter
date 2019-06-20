@@ -29,5 +29,5 @@ ENV NODE_ENV=production
 # ARG papertrail_app=xxx
 
 # ENV variables: API_PORT, LOG_LEVEL, RUN_ENV
-ENTRYPOINT node simple-index.js --port ${API_PORT} --loglevel ${LOG_LEVEL} --env ${RUN_ENV}
+ENTRYPOINT node index.js --port ${API_PORT} --loglevel ${LOG_LEVEL} --env ${RUN_ENV}
     # | pino-papertrail --host ${papertrail_dest} --port ${papertrail_port} --appname ${papertrail_app}

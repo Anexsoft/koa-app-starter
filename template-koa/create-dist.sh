@@ -8,8 +8,8 @@ cp package.json dist
 cp package-lock.json dist
 
 # copy app files
-cp -r -v ./src/koa-*.js dist
+cp -r -v ./src/cert dist/cert
+cp -r -v ./src/*.js dist
 cp -r -v ./src/common dist/common
 cp -r -v ./src/passport dist/passport
 cp -r -v ./src/api dist/api
-cp -r -v ./src/cert dist/cert

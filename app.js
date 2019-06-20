@@ -10,11 +10,16 @@ const terser = require("terser");
 async function run(options) {
     console.log('> Starting');
 
-    // copy the template folder
-    await _buildDestinationFolder(_getTemplatePath(options.apptype), options.dest);
+    // copy the template common folder first
+    var commonTemplatePath = path.resolve(_getCliPath(), 'template-common');
+    await _buildDestinationFolder(commonTemplatePath, options.dest);
+
+    // copy the template selected folder second
+    var selectedTemplatePath = path.resolve(_getCliPath(), options.apptype === 'koa' ? 'template-koa' : 'template-simple');
+    await _buildDestinationFolder(selectedTemplatePath, options.dest);
 
     // npm install all dependencies that were found in the template
-    _installTemplateDeps(_getTemplatePath(options.apptype));
+    _installTemplateDeps(selectedTemplatePath);
 }
 
 /**
@@ -22,10 +27,6 @@ async function run(options) {
  */
 function _getCliPath() {
     return __dirname;
-}
-
-function _getTemplatePath(apptype) {
-    return path.resolve(_getCliPath(), apptype === 'koa' ? 'template-koa' : 'template-simple');
 }
 
 /**
