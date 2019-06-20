@@ -7,6 +7,5 @@ rm -r -f dist && mkdir -p dist
 cp package.json dist
 cp package-lock.json dist
 
-# copy app files
-cp -r -v ./src/cert dist/cert
-cp -r -v ./src/*.js dist
+# copy app files to the dist root so they represent a regular application with its package.json file
+cp -r -v ./src/* dist
