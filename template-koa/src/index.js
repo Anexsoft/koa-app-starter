@@ -41,6 +41,7 @@ if (!argv.nohttps) {
     // this will enforce https
     const koaSslify = require('koa-sslify').default;
     koaApp.use(koaSslify());
+    koaApp.log.debug(`index-ssl: enforced`);
 }
 
 // init application
@@ -49,10 +50,14 @@ koaapp(koaApp, argv.module);
 // run
 var listenToPort = argv.port;
 
+var srv = null;
 if (argv.nohttps) {
     const http = require('http');
-    http.createServer(koaApp.callback()).listen(listenToPort);
+    srv = http.createServer(koaApp.callback());
+    srv._protocolName = 'http';
+    koaApp.log.debug(`index-http: http server created`);
 } else {
+    // TODO: Research SSL offloading with nginx
     const https = require('https');
 
     var sslOptions = null;
@@ -77,12 +82,14 @@ if (argv.nohttps) {
         throw error;
     }
 
-    https.createServer(sslOptions, koaApp.callback()).listen(listenToPort);
+    srv = https.createServer(sslOptions, koaApp.callback());
+    srv._protocolName = 'https';
+    koaApp.log.debug(`index-http: https server created`);
 }
 
-let protocol = argv.nohttps ? 'http' : 'https';
-let ipaddr = ip.address();
-koaApp.log.info(`index-start: success in ${protocol}://${ipaddr}:${listenToPort}`);
+srv.listen(listenToPort);
+let fullAddr = `${srv._protocolName}://${ip.address()}:${listenToPort}`;
+koaApp.log.info(`index-start: server listening in ${fullAddr}`);
 
 // cleanup
 require('node-cleanup')((exitCode, signal) => {

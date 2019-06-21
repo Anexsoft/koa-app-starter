@@ -25,16 +25,18 @@ var logger = pino({
 logger.debug('index-logging: success');
 
 var httpHandler = (req, res) => {
-    logger.info('hello world');
-    res.end('end');
+    res.end('hello world');
 };
 
 // run
 var listenToPort = argv.port;
 
+var srv = null;
 if (argv.nohttps) {
     const http = require('http');
-    http.createServer(httpHandler).listen(listenToPort);
+    srv = http.createServer(httpHandler);
+    srv._protocolName = 'http';
+    logger.debug(`index-http: http server created`);
 } else {
     const https = require('https');
 
@@ -60,12 +62,14 @@ if (argv.nohttps) {
         throw error;
     }
 
-    https.createServer(sslOptions, httpHandler).listen(listenToPort);
+    srv = https.createServer(sslOptions, httpHandler);
+    srv._protocolName = 'https';
+    logger.debug(`index-http: https server created`);
 }
 
-let protocol = argv.nohttps ? 'http' : 'https';
-let ipaddr = ip.address();
-logger.info(`index-start: success in ${protocol}://${ipaddr}:${listenToPort}`);
+srv.listen(listenToPort);
+let fullAddr = `${srv._protocolName}://${ip.address()}:${listenToPort}`;
+logger.info(`index-start: server listening in ${fullAddr}`);
 
 // cleanup
 require('node-cleanup')((exitCode, signal) => {
