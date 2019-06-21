@@ -43,7 +43,9 @@ function _isDebugEnv() {
 }
 
 async function _buildDestinationFolder(src, destPath) {
-    let options = {
+    let intactPaths = ['/src/api'];
+
+    let fgCopyOptions = {
         dot: true,
         ignore: [
             '!**/node_modules',
@@ -52,7 +54,7 @@ async function _buildDestinationFolder(src, destPath) {
         ]
     };
 
-    let entries = await fg(path.join(src, '**'), options);
+    let entries = await fg(path.join(src, '**'), fgCopyOptions);
     for (let i = 0; i < entries.length; i++) {
         let entry = entries[i];
 
@@ -60,12 +62,12 @@ async function _buildDestinationFolder(src, destPath) {
         let relpath = path.relative(src, entry);
         let destfile = path.resolve(destPath, relpath);
 
-        if (entry.endsWith('.js')) {
+        if (entry.endsWith('.js') && !_inPaths(entry, intactPaths)) {
             var mincode = {};
             mincode[path.basename(entry)] = fs.readFileSync(entry, "utf8");
             var uglycode = terser.minify(mincode);
             if (uglycode.error) {
-                console.log(`>> Error to write ${destfile}: ` + JSON.stringify(uglycode.error));
+                console.log(`>> Error to minify ${destfile}: ` + JSON.stringify(uglycode.error));
             } else {
                 try {
                     fs.createFileSync(destfile);
@@ -80,6 +82,15 @@ async function _buildDestinationFolder(src, destPath) {
             console.log(`>> Copied ${destfile}`);
         }
     }
+}
+
+function _inPaths(path, list) {
+    var result = false;
+    for (let i = 0; !result && i < list.length; i++) {
+        result = path.indexOf(list[i]) >= 0;
+    }
+
+    return result;
 }
 
 function _installTemplateDeps(src) {
