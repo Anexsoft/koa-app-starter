@@ -43,7 +43,7 @@ function _isDebugEnv() {
 }
 
 async function _buildDestinationFolder(src, destPath) {
-    let intactPaths = ['/src/api'];
+    let minifyIgnorePaths = ['/src/api'];
 
     let fgCopyOptions = {
         dot: true,
@@ -62,24 +62,49 @@ async function _buildDestinationFolder(src, destPath) {
         let relpath = path.relative(src, entry);
         let destfile = path.resolve(destPath, relpath);
 
-        if (entry.endsWith('.js') && !_inPaths(entry, intactPaths)) {
-            var mincode = {};
-            mincode[path.basename(entry)] = fs.readFileSync(entry, "utf8");
-            var uglycode = terser.minify(mincode);
-            if (uglycode.error) {
-                console.log(`>> Error to minify ${destfile}: ` + JSON.stringify(uglycode.error));
-            } else {
-                try {
-                    fs.createFileSync(destfile);
-                    fs.writeFileSync(destfile, uglycode.code);
-                    console.log(`>> Copied and minified ${destfile}`);
-                } catch (ex) {
-                    console.log(`>> Error to write ${destfile}: ` + ex.message);
+        if (entry.endsWith('.js') && !_inPaths(entry, minifyIgnorePaths)) {
+            // minify the js files except for some we want to ignore
+            var minResult = _minifyFile(entry, destfile);
+
+            if (!minResult.ok) {
+                if (minResult.reason == 'uglify') {
+                    console.log(`>> Error to minify ${destfile}: ` + JSON.stringify(minResult.error));
+                } else if (minResult.reason == 'write') {
+                    console.log(`>> Error to write ${destfile}: ` + minResult.error.message);
                 }
+            } else {
+                console.log(`>> Copied and minified ${destfile}`);
             }
         } else {
             await fs.copy(entry, destfile, { overwrite: true });
             console.log(`>> Copied ${destfile}`);
+        }
+    }
+}
+
+function _minifyFile(inPath, outPath) {
+    var mincode = {};
+    mincode[path.basename(inPath)] = fs.readFileSync(inPath, "utf8");
+    var uglycode = terser.minify(mincode);
+    if (uglycode.error) {
+        return {
+            ok: false,
+            reason: 'uglify',
+            error: uglycode.error
+        };
+    } else {
+        try {
+            fs.createFileSync(outPath);
+            fs.writeFileSync(outPath, uglycode.code);
+            return {
+                ok: true
+            };
+        } catch (ex) {
+            return {
+                ok: false,
+                reason: 'writeFile',
+                error: ex
+            };
         }
     }
 }
