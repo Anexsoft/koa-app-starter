@@ -64,7 +64,7 @@ async function _buildDestinationFolder(src, destPath) {
 
         if (entry.endsWith('.js') && !_inPaths(entry, minifyIgnorePaths)) {
             // minify the js files except for some we want to ignore
-            var minResult = _minifyFile(entry, destfile);
+            var minResult = _minifyJs(entry, destfile);
 
             if (!minResult.ok) {
                 if (minResult.reason == 'uglify') {
@@ -82,9 +82,11 @@ async function _buildDestinationFolder(src, destPath) {
     }
 }
 
-function _minifyFile(inPath, outPath) {
+function _minifyJs(inPath, outPath) {
+    var inContent = fs.readFileSync(inPath, "utf8");
+
     var mincode = {};
-    mincode[path.basename(inPath)] = fs.readFileSync(inPath, "utf8");
+    mincode[path.basename(inPath)] = inContent;
     var uglycode = terser.minify(mincode);
     if (uglycode.error) {
         return {
@@ -94,8 +96,10 @@ function _minifyFile(inPath, outPath) {
         };
     } else {
         try {
+            // disable eslint on minified files
+            var inMinContent = '/* eslint-disable */\n' + uglycode.code;
             fs.createFileSync(outPath);
-            fs.writeFileSync(outPath, uglycode.code);
+            fs.writeFileSync(outPath, inMinContent);
             return {
                 ok: true
             };
