@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const jsyaml = require('js-yaml');
 const _merge = require('lodash.merge');
+const _set = require('lodash.set');
 const fg = require('fast-glob');
 
 class Plugin
@@ -28,6 +29,12 @@ class Plugin
         var ni = new NpmInstallTask(this.pluginPath);
         ni.merge(this._configData ? this._configData.npm : null);
         return ni;
+    }
+
+    updateConfigTask() {
+        var uc = new UpdateConfigTask(this.pluginPath);
+        uc.merge(this._configData ? this._configData.configjson : null);
+        return uc;
     }
 }
 
@@ -140,8 +147,41 @@ class NpmInstallTask {
     }
 }
 
+class UpdateConfigTask {
+    constructor(sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    _defaultCfg() {
+        // no default config
+        return [];
+    }
+
+    merge(cfg) {
+        this.config = _merge(this._defaultCfg(), cfg || []);
+    }
+
+    hasAny() {
+        return this.config.length > 0;
+    }
+
+    applyToFile(filePath) {
+        if (this.hasAny()) {
+            var fileCfg = fs.readJsonSync(filePath);
+
+            for (let i = 0; i < this.config.length; i++) {
+                const elem = this.config[i];
+                _set(fileCfg, elem.path, JSON.parse(elem.value));
+            }
+    
+            fs.writeJsonSync(filePath, fileCfg, { EOL: '\n', spaces: 4 });    
+        }    
+    }
+}
+
 module.exports = {
     Plugin: Plugin,
     CopyTask: CopyTask,
-    NpmInstallTask: NpmInstallTask
+    NpmInstallTask: NpmInstallTask,
+    UpdateConfigTask: UpdateConfigTask
 };

@@ -4,17 +4,18 @@ npm:
         - mssql
 
 # add to config.json
-config.json:
-    path: /
-    value: |
-      "connectionObject": {
-          "user": "<db user>",
-          "password": "<db pwd>",
-          "server": "<db server>",
-          "database": "<db database>",
-          "encrypt": true,
-          "pool": {
-              "min": 100,
-              "max": 500
-          }
-      },
+configjson:
+    # lodash.set syntax
+    - path: connectionObject
+      value: |
+        {
+            "user": "<db user>",
+            "password": "<db pwd>",
+            "server": "<db server>",
+            "database": "<db database>",
+            "encrypt": true,
+            "pool": {
+                "min": 100,
+                "max": 500
+            }
+        }

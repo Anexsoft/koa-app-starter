@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs-extra');
 const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
-const fg = require('fast-glob');
 const terser = require("terser");
 const Plugin = require("./plugin").Plugin;
 
@@ -32,6 +31,14 @@ async function run(options) {
             _installTemplateDeps(p.npmInstallTask())
         }        
     }
+
+    // apply config completely
+    for (let i = 0; i < plugins.length; i++) {
+        const p = plugins[i];
+        if (p) {
+            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'api', 'config.json'));
+        }        
+    }
 }
 
 /**
@@ -41,17 +48,10 @@ function _getCliPath() {
     return __dirname;
 }
 
-/**
- * Gets the folder path of the destination application that will be started
- */
-function _getRunPath() {
+function _isDebugEnv() {
     // cwd is the directory where the program is run.
     // Normally the developer will locate himself in the root of the project to call node commands.
-    return process.cwd();
-}
-
-function _isDebugEnv() {
-    return _getCliPath() === _getRunPath();
+    return _getCliPath() === process.cwd();
 }
 
 function _buildDestinationFolder(copyTask, destPath) {
@@ -136,6 +136,14 @@ function _installTemplateDeps(npmInsTask) {
                 }
             }
         });
+    }
+}
+
+function _applyConfig(configTask, configFile) {
+    if (configTask.hasAny()) {
+        console.log(`>> Updating config file ${configFile}`);
+        configTask.applyToFile(configFile);
+        console.log('>> Updated');
     }
 }
 
