@@ -6,17 +6,24 @@ const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
 const fg = require('fast-glob');
 const terser = require("terser");
+const Plugin = require("./plugin");
 
 async function run(options) {
     console.log('> Starting');
 
-    // copy the template common folder first
-    var commonTemplatePath = path.resolve(_getCliPath(), 'template-common');
-    await _buildDestinationFolder(commonTemplatePath, options.dest);
+    // copy the partial common folder first
+    var commonPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-common'));
+    await _buildDestinationFolder(commonPlugin.copyTask(), options.dest);
 
-    // copy the template selected folder second
+    if (options.addmssql) {
+        var mssqlPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-mssql'));
+        await _buildDestinationFolder(mssqlPlugin.copyTask(), options.dest);
+    }
+
+    // copy the template selected folder
     var selectedTemplatePath = path.resolve(_getCliPath(), options.apptype === 'koa' ? 'template-koa' : 'template-simple');
-    await _buildDestinationFolder(selectedTemplatePath, options.dest);
+    var tempPlugin = new Plugin(selectedTemplatePath);
+    await _buildDestinationFolder(tempPlugin.copyTask(), options.dest);
 
     // npm install all dependencies that were found in the template
     _installTemplateDeps(selectedTemplatePath);
@@ -42,27 +49,15 @@ function _isDebugEnv() {
     return _getCliPath() === _getRunPath();
 }
 
-async function _buildDestinationFolder(src, destPath) {
-    let minifyIgnorePaths = ['/src/api'];
-
-    let fgCopyOptions = {
-        dot: true,
-        ignore: [
-            '!**/node_modules',
-            '!**/package*.json',
-            '!**/readme.txt'
-        ]
-    };
-
-    let entries = await fg(path.join(src, '**'), fgCopyOptions);
+async function _buildDestinationFolder(copyTask, destPath) {
+    let entries = await copyTask.getFilesToCopy();
     for (let i = 0; i < entries.length; i++) {
         let entry = entries[i];
 
-        // remove the source dir and rebuild the path
-        let relpath = path.relative(src, entry);
-        let destfile = path.resolve(destPath, relpath);
+        // convert the entry to the destination
+        let destfile = path.resolve(destPath, path.relative(copyOptions.path, entry));
 
-        if (entry.endsWith('.js') && !_inPaths(entry, minifyIgnorePaths)) {
+        if (await copyTask.shouldMinify(entry)) {
             // minify the js files except for some we want to ignore
             var minResult = _minifyJs(entry, destfile);
 
@@ -76,6 +71,7 @@ async function _buildDestinationFolder(src, destPath) {
                 console.log(`>> Copied and minified ${destfile}`);
             }
         } else {
+            // simple copy of the file
             await fs.copy(entry, destfile, { overwrite: true });
             console.log(`>> Copied ${destfile}`);
         }
@@ -122,20 +118,24 @@ function _inPaths(path, list) {
     return result;
 }
 
-function _installTemplateDeps(src) {
+function _installTemplateDeps(templatePath, includeMoreDeps) {
     // NOTE: only do this when the program is really running, not while debugging locally, because it will
     // screw up the cli package file
 
     console.log('> Starting to install npm dependencies (this could take some minutes). Please do not touch the console.');
 
     // open cli template package.json
-    var packagejson = require(path.resolve(src, 'package.json'));
+    var packagejson = require(path.resolve(templatePath, 'package.json'));
 
     // and install the dependencies
     var instarray = [
         { list: _get(packagejson, 'dependencies'), args: '--save' },
         { list: _get(packagejson, 'devDependencies'), args: '--save-dev' },
     ];
+
+    if (includeMoreDeps) {
+        instarray.push({ list: includeMoreDeps, args: '--save' });
+    }
 
     // NOTE: Why not just copy the template package.json and run a global npm install? Because by doing a fresh npm install of
     // each package (without the version), we will always get the latest version of each library.
