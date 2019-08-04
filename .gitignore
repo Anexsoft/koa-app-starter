@@ -5,3 +5,4 @@ logs
 node_modules
 *.tgz
 dist
+template*/package-lock.json
