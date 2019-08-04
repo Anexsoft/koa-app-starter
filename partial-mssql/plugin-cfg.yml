@@ -1,11 +1,12 @@
 # add each npm package to install
 npm:
+    # install: either array or object syntax
     install:
         - mssql
 
 # add to config.json
 configjson:
-    # lodash.set syntax
+    # path: lodash.set syntax
     - path: connectionObject
       value: |
         {
