@@ -49,6 +49,13 @@ function _questions(root) {
             choices: ['koa', 'simple']
         },
         {
+            type: 'confirm',
+            message: 'Add mssql?',
+            name: 'addmssql',
+            default: true,
+            when: function (ans) { return ans.apptype == 'koa'; }
+        },
+        {
             type: 'input',
             message: 'Where should the files be copied?',
             name: 'dest',

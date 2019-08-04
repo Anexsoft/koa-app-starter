@@ -14,7 +14,7 @@ const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt.js').b
 var configKey = null;
 
 // #### DEFINE HERE YOUR APIs AND DBs ####
-const db = require('./db.js');
+const db = require('./db-mssql.js');
 
 /**
  * Setup the api (config and routes)
