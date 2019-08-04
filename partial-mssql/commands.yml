@@ -1,0 +1,27 @@
+- copy:
+    path: .
+    ignore: []
+    minify:
+        enabled: true
+        ignore: []
+
+# add each npm package to install
+- npm:
+    install:
+      - mssql
+
+# add to config.json
+- config.json:
+    path: /
+    value: |
+      "connectionObject": {
+          "user": "<db user>",
+          "password": "<db pwd>",
+          "server": "<db server>",
+          "database": "<db database>",
+          "encrypt": true,
+          "pool": {
+              "min": 100,
+              "max": 500
+          }
+      },
