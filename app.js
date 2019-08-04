@@ -6,7 +6,7 @@ const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
 const fg = require('fast-glob');
 const terser = require("terser");
-const Plugin = require("./plugin");
+const Plugin = require("./plugin").Plugin;
 
 async function run(options) {
     console.log('> Starting');
@@ -15,8 +15,10 @@ async function run(options) {
     var commonPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-common'));
     await _buildDestinationFolder(commonPlugin.copyTask(), options.dest);
 
+    var mssqlPlugin;
     if (options.addmssql) {
-        var mssqlPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-mssql'));
+        // copy the mssql folder
+        mssqlPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-mssql'));
         await _buildDestinationFolder(mssqlPlugin.copyTask(), options.dest);
     }
 
@@ -26,7 +28,11 @@ async function run(options) {
     await _buildDestinationFolder(tempPlugin.copyTask(), options.dest);
 
     // npm install all dependencies that were found in the template
-    _installTemplateDeps(selectedTemplatePath);
+    _installTemplateDeps(tempPlugin.npmInstallTask());
+    if (mssqlPlugin) {
+        // npm install dependencies from mssql
+        _installTemplateDeps(mssqlPlugin.npmInstallTask());
+    }
 }
 
 /**
@@ -55,7 +61,7 @@ async function _buildDestinationFolder(copyTask, destPath) {
         let entry = entries[i];
 
         // convert the entry to the destination
-        let destfile = path.resolve(destPath, path.relative(copyOptions.path, entry));
+        let destfile = path.resolve(destPath, path.relative(copyTask.config.path, entry));
 
         if (await copyTask.shouldMinify(entry)) {
             // minify the js files except for some we want to ignore
@@ -109,45 +115,25 @@ function _minifyJs(inPath, outPath) {
     }
 }
 
-function _inPaths(path, list) {
-    var result = false;
-    for (let i = 0; !result && i < list.length; i++) {
-        result = path.indexOf(list[i]) >= 0;
-    }
+function _installTemplateDeps(npmInsTask) {
+    console.log('> Install npm dependencies (this could take some minutes). Please do not touch the console.');
 
-    return result;
-}
-
-function _installTemplateDeps(templatePath, includeMoreDeps) {
-    // NOTE: only do this when the program is really running, not while debugging locally, because it will
-    // screw up the cli package file
-
-    console.log('> Starting to install npm dependencies (this could take some minutes). Please do not touch the console.');
-
-    // open cli template package.json
-    var packagejson = require(path.resolve(templatePath, 'package.json'));
-
-    // and install the dependencies
-    var instarray = [
-        { list: _get(packagejson, 'dependencies'), args: '--save' },
-        { list: _get(packagejson, 'devDependencies'), args: '--save-dev' },
-    ];
-
-    if (includeMoreDeps) {
-        instarray.push({ list: includeMoreDeps, args: '--save' });
-    }
+    // process package.json
+    var pkg = npmInsTask.readDependencies();
 
     // NOTE: Why not just copy the template package.json and run a global npm install? Because by doing a fresh npm install of
     // each package (without the version), we will always get the latest version of each library.
-    instarray.forEach(elem => {
-        if (elem.list) {
-            for (const pkgKey in elem.list) {
-                var cmd = `npm install ${elem.args} ${pkgKey}`;
-                if (!_isDebugEnv()) {
-                    execSync(cmd, { stdio: [0, 1, 2] });
-                } else {
-                    console.log('>> <mock> ' + cmd);
-                }
+    [
+        { list: pkg.dependencies, args: '--save' },
+        { list: pkg.devDependencies, args: '--save-dev' },
+    ].forEach(elem => {
+        for (const pkgKey in elem.list) {
+            var cmd = `npm install ${elem.args} ${pkgKey}`;
+            if (!_isDebugEnv()) {
+                execSync(cmd, { stdio: [0, 1, 2] });
+            } else {
+                // NOTE: when debugging, do not mess with any package.json
+                console.log('>> <mock> ' + cmd);
             }
         }
     });

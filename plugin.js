@@ -7,22 +7,35 @@ const fg = require('fast-glob');
 class Plugin
 {
     constructor(pluginPath) {
-        var confpath = path.join(pluginPath, 'commands.yml');
-        if (!fs.existsSync(confpath)) {
-            throw new Error(`Config file needed in ${confpath}`)
-        }
+        this.pluginPath = pluginPath;
 
-        this._configData = jsyaml.safeLoad(fs.readFileSync(confpath, 'utf-8'));
+        // if the file does not exist, simply assume the default config
+        var confpath = path.join(this.pluginPath, 'plugin-cfg.yml');
+        if (fs.existsSync(confpath)) {
+            this._configData = jsyaml.safeLoad(fs.readFileSync(confpath, 'utf-8'));
+        } else {
+            this._configData = null;
+        }        
     }
 
     copyTask() {
-        var cbConfig = new CopyBaseConfig();
-        cbConfig.merge(this._configData.copy);
-        return cbConfig;
+        var ct = new CopyTask(this.pluginPath);
+        ct.merge(this._configData ? this._configData.copy : null);
+        return ct;
+    }
+
+    npmInstallTask() {
+        var ni = new NpmInstallTask(this.pluginPath);
+        ni.merge(this._configData ? this._configData.npm : null);
+        return ni;
     }
 }
 
-class CopyTask {    
+class CopyTask {
+    constructor(sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
     _defaultCfg() {
         return {
             path: '.', // base path to copy all files from
@@ -31,7 +44,7 @@ class CopyTask {
                 '!**/node_modules',
                 '!**/package*.json',
                 '!**/readme.txt',
-                '!**/commands.yml'
+                '!**/plugin-cfg.yml'
             ],
             minify: {
                 enabled: true, // enable js minify
@@ -39,17 +52,17 @@ class CopyTask {
                 defaultExtensions: ['.js'],
                 ignore: [], // array of glob paths to ignore to minify
                 defaultIgnore: [
-                    '/src/api'
+                    '!**/src/api/*'
                 ]
             },
         };
     }
 
     merge(cfg) {
-        this.config = _merge(this._defaultCfg(), cfg);
+        this.config = _merge(this._defaultCfg(), cfg || {});
 
-        // convert to absolute path
-        this.config.path = path.resolve(this.config.path);
+        // based on the given sourcePath, convert to absolute path
+        this.config.path = path.resolve(this.sourcePath, this.config.path);
 
         // build the copy final ignore list
         this.config.finalIgnore = this.config.defaultIgnore.concat(this.config.ignore || []);
@@ -67,11 +80,11 @@ class CopyTask {
 
     async shouldMinify(filePath) {
         // verify if it has the extension
-        var yes = this.config.minify.finalExtensions.indexOf(path.extname(filePath));
+        var yes = this.config.minify.finalExtensions.indexOf(path.extname(filePath)) >= 0;
 
         if (yes) {
             // verify if file is not in the ignore list
-            let entries = await fg(filePath, { dot: true, ignore: copyOptions.minify.finalIgnore });
+            let entries = await fg(filePath, { dot: true, ignore: this.config.minify.finalIgnore });
             yes = entries.length > 0;
         }
         
@@ -79,7 +92,50 @@ class CopyTask {
     }
 }
 
+class NpmInstallTask {
+    constructor(sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    _defaultCfg() {
+        return {
+            install: {}
+        };
+    }
+
+    merge(cfg) {
+        this.config = _merge(this._defaultCfg(), cfg || {});
+
+        // if it's an array, convert to a dictionary (highly probable it is declared like this)
+        // if it was declared as object, leave as is
+        if (Array.isArray(this.config.install)) {
+            var dict = {};
+            for (let i = 0; i < this.config.install.length; i++) {
+                dict[this.config.install[i]] = null;                
+            }
+
+            this.config.install = dict;
+        }
+    }
+
+    readDependencies() {
+        // open template package.json if exists
+        var pkgInfo = {};        
+        var pkgPath = path.resolve(this.sourcePath, 'package.json');
+        if (fs.existsSync(pkgPath)) {
+            pkgInfo = fs.readJsonSync(pkgPath);
+        }
+
+        // return the dependencies merged between package.json and plugin config file
+        return {
+            dependencies: _merge(pkgInfo.dependencies || {}, this.config.install || {}),
+            devDependencies: pkgInfo.devDependencies || {}
+        };
+    }
+}
+
 module.exports = {
     Plugin: Plugin,
-    CopyTask: CopyTask
+    CopyTask: CopyTask,
+    NpmInstallTask: NpmInstallTask
 };

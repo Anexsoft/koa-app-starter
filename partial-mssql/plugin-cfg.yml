@@ -1,17 +1,10 @@
-- copy:
-    path: .
-    ignore: []
-    minify:
-        enabled: true
-        ignore: []
-
 # add each npm package to install
-- npm:
+npm:
     install:
-      - mssql
+        - mssql
 
 # add to config.json
-- config.json:
+config.json:
     path: /
     value: |
       "connectionObject": {
