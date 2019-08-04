@@ -1,16 +1,5 @@
 {
     "name": "<api name>",
-    "connectionObject": {
-        "user": "<db user>",
-        "password": "<db pwd>",
-        "server": "<db server>",
-        "database": "<db database>",
-        "encrypt": true,
-        "pool": {
-            "min": 100,
-            "max": 500
-        }
-    },
     "auth": {
         "jwt": {
             "whoIssuedTheToken": "<issuer>",

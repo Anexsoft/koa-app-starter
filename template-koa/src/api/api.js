@@ -13,9 +13,6 @@ const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt.js').b
 // eslint-disable-next-line no-unused-vars
 var configKey = null;
 
-// #### DEFINE HERE YOUR APIs AND DBs ####
-const db = require('./db-mssql.js');
-
 /**
  * Setup the api (config and routes)
  * @param {*} koaApp Current koa application that will contain this api
@@ -40,7 +37,7 @@ function setup(koaApp, config) {
     _setupRoutes(koaApp);
 
     // setup the db layer
-    db.setup(koaApp, config);
+    // db.setup(koaApp, config);
 }
 
 function _setupConfig(koaApp, config) {
@@ -55,8 +52,10 @@ function _setupConfig(koaApp, config) {
 
 function _setupAuth(koaApp) {
     // set the passport basis
-    // TODO: change function to convert from payload to user object
-    var passport = passportSetup(koaApp, (payload) => payload);
+    var passport = passportSetup(koaApp, (payload) => {
+        // TODO: change function to convert from payload to user object
+        return payload; 
+    });
 
     // set the strategy
     var jwtcfg = koaApp.config[configKey].auth.jwt;
@@ -89,12 +88,10 @@ function __setupRoutes(koaApp, koaRouter) {
     koaRouter
         .get('/xxx/:id', async function(ctx, next) {
             ctx.log.debug('getXXXById-api: start', ctx.params);
-            var xxxData = await db.getXXXById(ctx.app, ctx.params['id']);
-            if (xxxData) {
-                ctx.body = xxxData;
-            } else {
-                ctx.throw(404);
-            }
+            ctx.body = {
+                id: ctx.params['id'],
+                name: '1 my real name is ' + ctx.params['id']
+            };
 
             await next();
         });
@@ -105,7 +102,7 @@ function __setupRoutes(koaApp, koaRouter) {
             ctx.log.debug('getXXX2ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],
-                name: 'my real name is ' + ctx.params['id']
+                name: '2 my real name is ' + ctx.params['id']
             };
 
             await next();
