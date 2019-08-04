@@ -74,17 +74,17 @@ class CopyTask {
         this.config.minify.finalIgnore = this.config.minify.defaultIgnore.concat(this.config.minify.ignore || []);
     }
 
-    async getFilesToCopy() {
-        return await fg(path.join(this.config.path, '**'), { dot: true, ignore: this.config.finalIgnore });
+    getFilesToCopy() {
+        return fg.sync(path.join(this.config.path, '**'), { dot: true, ignore: this.config.finalIgnore });
     }
 
-    async shouldMinify(filePath) {
+    shouldMinify(filePath) {
         // verify if it has the extension
         var yes = this.config.minify.finalExtensions.indexOf(path.extname(filePath)) >= 0;
 
         if (yes) {
             // verify if file is not in the ignore list
-            let entries = await fg(filePath, { dot: true, ignore: this.config.minify.finalIgnore });
+            let entries = fg.sync(filePath, { dot: true, ignore: this.config.minify.finalIgnore });
             yes = entries.length > 0;
         }
         
@@ -127,10 +127,16 @@ class NpmInstallTask {
         }
 
         // return the dependencies merged between package.json and plugin config file
-        return {
+        var result = {
             dependencies: _merge(pkgInfo.dependencies || {}, this.config.install || {}),
             devDependencies: pkgInfo.devDependencies || {}
         };
+
+        result.hasAny = 
+            result.dependencies && Object.keys(result.dependencies).length > 0 ||
+            result.devDependencies && Object.keys(result.devDependencies).length > 0;
+
+        return result;
     }
 }
 

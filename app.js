@@ -11,27 +11,26 @@ const Plugin = require("./plugin").Plugin;
 async function run(options) {
     console.log('> Starting');
 
-    // copy the partial common folder first
-    var commonPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-common'));
-    await _buildDestinationFolder(commonPlugin.copyTask(), options.dest);
+    var plugins = [
+        new Plugin(path.resolve(_getCliPath(), 'partial-common')),
+        options.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
+        new Plugin(path.resolve(_getCliPath(), options.apptype === 'koa' ? 'template-koa' : 'template-simple'))
+    ];
 
-    var mssqlPlugin;
-    if (options.addmssql) {
-        // copy the mssql folder
-        mssqlPlugin = new Plugin(path.resolve(_getCliPath(), 'partial-mssql'));
-        await _buildDestinationFolder(mssqlPlugin.copyTask(), options.dest);
+    // build the folder completely
+    for (let i = 0; i < plugins.length; i++) {
+        const p = plugins[i];
+        if (p) {
+            _buildDestinationFolder(p.copyTask(), options.dest);
+        }        
     }
 
-    // copy the template selected folder
-    var selectedTemplatePath = path.resolve(_getCliPath(), options.apptype === 'koa' ? 'template-koa' : 'template-simple');
-    var tempPlugin = new Plugin(selectedTemplatePath);
-    await _buildDestinationFolder(tempPlugin.copyTask(), options.dest);
-
-    // npm install all dependencies that were found in the template
-    _installTemplateDeps(tempPlugin.npmInstallTask());
-    if (mssqlPlugin) {
-        // npm install dependencies from mssql
-        _installTemplateDeps(mssqlPlugin.npmInstallTask());
+    // run npm completely
+    for (let i = 0; i < plugins.length; i++) {
+        const p = plugins[i];
+        if (p) {
+            _installTemplateDeps(p.npmInstallTask())
+        }        
     }
 }
 
@@ -55,15 +54,15 @@ function _isDebugEnv() {
     return _getCliPath() === _getRunPath();
 }
 
-async function _buildDestinationFolder(copyTask, destPath) {
-    let entries = await copyTask.getFilesToCopy();
+function _buildDestinationFolder(copyTask, destPath) {
+    let entries = copyTask.getFilesToCopy();
     for (let i = 0; i < entries.length; i++) {
         let entry = entries[i];
 
         // convert the entry to the destination
         let destfile = path.resolve(destPath, path.relative(copyTask.config.path, entry));
 
-        if (await copyTask.shouldMinify(entry)) {
+        if (copyTask.shouldMinify(entry)) {
             // minify the js files except for some we want to ignore
             var minResult = _minifyJs(entry, destfile);
 
@@ -78,7 +77,7 @@ async function _buildDestinationFolder(copyTask, destPath) {
             }
         } else {
             // simple copy of the file
-            await fs.copy(entry, destfile, { overwrite: true });
+            fs.copySync(entry, destfile, { overwrite: true });
             console.log(`>> Copied ${destfile}`);
         }
     }
@@ -116,27 +115,28 @@ function _minifyJs(inPath, outPath) {
 }
 
 function _installTemplateDeps(npmInsTask) {
-    console.log('> Install npm dependencies (this could take some minutes). Please do not touch the console.');
-
     // process package.json
     var pkg = npmInsTask.readDependencies();
+    if (pkg.hasAny) {
+        console.log('> Install npm dependencies (this could take some minutes). Please do not touch the console.');
 
-    // NOTE: Why not just copy the template package.json and run a global npm install? Because by doing a fresh npm install of
-    // each package (without the version), we will always get the latest version of each library.
-    [
-        { list: pkg.dependencies, args: '--save' },
-        { list: pkg.devDependencies, args: '--save-dev' },
-    ].forEach(elem => {
-        for (const pkgKey in elem.list) {
-            var cmd = `npm install ${elem.args} ${pkgKey}`;
-            if (!_isDebugEnv()) {
-                execSync(cmd, { stdio: [0, 1, 2] });
-            } else {
-                // NOTE: when debugging, do not mess with any package.json
-                console.log('>> <mock> ' + cmd);
+        // NOTE: Why not just copy the template package.json and run a global npm install? Because by doing a fresh npm install of
+        // each package (without the version), we will always get the latest version of each library.
+        [
+            { list: pkg.dependencies, args: '--save' },
+            { list: pkg.devDependencies, args: '--save-dev' },
+        ].forEach(elem => {
+            for (const pkgKey in elem.list) {
+                var cmd = `npm install ${elem.args} ${pkgKey}`;
+                if (!_isDebugEnv()) {
+                    execSync(cmd, { stdio: [0, 1, 2] });
+                } else {
+                    // NOTE: when debugging, do not mess with any package.json
+                    console.log('>> <mock> ' + cmd);
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 module.exports = run;
