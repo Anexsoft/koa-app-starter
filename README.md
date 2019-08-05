@@ -34,7 +34,7 @@ npm install --save-dev @juntoz/koa-app-starter
 
 6. The last step is to read the template package.json and do an `npm install` of each package into your project package.json. This ensures that you download the latest version of each library.
 
-7. Do a `node src/koa-index.js --port 3000`, and you have your new app running!
+7. Do a `node src/index.js --port 3000`, and you have your new app running!
 
 ## "Two projects" = Two package.json
 Note that the root package.json is for the cli.
@@ -62,7 +62,7 @@ In order to run either of the two from VS Code, you need to define like this:
             "type": "node",
             "request": "launch",
             "name": "Launch Template",
-            "program": "${workspaceFolder}/template/src/koa-index.js",
+            "program": "${workspaceFolder}/template-koa/src/koa-index.js",
             "args": ["--port", "3010"],
             "outputCapture": "std"
         }
