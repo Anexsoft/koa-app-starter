@@ -19,9 +19,9 @@ This is definitely an opinionated starter based on my own experience and what I'
 
 1. Create your project using `npm init` as usual. This will create the package.json for your project.
 
-2. Add the package to your project
+2. Add the package to your project as a development dependency
 ```
-npm install @juntoz/koa-app-starter
+npm install --save-dev @juntoz/koa-app-starter
 ```
 
 3. Go to where your project's package.json file is (root folder).
