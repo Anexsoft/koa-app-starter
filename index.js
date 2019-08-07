@@ -43,17 +43,16 @@ function _questions(root) {
     return [
         {
             type: 'list',
-            message: 'What type of app do you want (koa/simple)?',
+            message: 'What type of app do you want (koa/simple/topic)?',
             name: 'apptype',
             default: 'koa',
-            choices: ['koa', 'simple']
+            choices: ['koa', 'simple', 'topic']
         },
         {
             type: 'confirm',
             message: 'Add mssql?',
             name: 'addmssql',
-            default: true,
-            when: function (ans) { return ans.apptype == 'koa'; }
+            default: false,
         },
         {
             type: 'input',

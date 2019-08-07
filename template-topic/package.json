@@ -1,0 +1,22 @@
+{
+    "name": "koa-app-starter-template",
+    "version": "0.0.1",
+    "description": "Template for bus app. This package.json will only serve to copy over the dependencies.",
+    "main": "src/index.js",
+    "author": "Juntoz.com",
+    "license": "MIT",
+    "dependencies": {
+        "@azure/service-bus": "^1.0.3",
+        "node-cleanup": "^2.1.2",
+        "pino": "^5.13.2",
+        "yargs": "^13.3.0"
+    },
+    "devDependencies": {
+        "eslint": "^5.15.1",
+        "eslint-config-standard": "^12.0.0",
+        "eslint-plugin-import": "^2.16.0",
+        "eslint-plugin-node": "^8.0.1",
+        "eslint-plugin-promise": "^4.0.1",
+        "eslint-plugin-standard": "^4.0.0"
+    }
+}

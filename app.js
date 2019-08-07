@@ -10,10 +10,25 @@ const Plugin = require("./plugin").Plugin;
 async function run(options) {
     console.log('> Starting');
 
+    var appPluginPath = "";
+    switch (options.apptype) {
+        case 'koa':
+            appPluginPath = 'template-koa';
+            break;
+        case 'simple':
+            appPluginPath = 'template-simple';
+            break;
+        case 'topic':
+            appPluginPath = 'template-topic';
+            break;
+        default:
+            throw new Error('Type not recognized');
+    }
+
     var plugins = [
         new Plugin(path.resolve(_getCliPath(), 'partial-common')),
         options.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
-        new Plugin(path.resolve(_getCliPath(), options.apptype === 'koa' ? 'template-koa' : 'template-simple'))
+        new Plugin(path.resolve(_getCliPath(), appPluginPath))
     ];
 
     // build the folder completely
@@ -21,7 +36,7 @@ async function run(options) {
         const p = plugins[i];
         if (p) {
             _buildDestinationFolder(p.copyTask(), options.dest);
-        }        
+        }
     }
 
     // run npm completely
@@ -29,7 +44,7 @@ async function run(options) {
         const p = plugins[i];
         if (p) {
             _installTemplateDeps(p.npmInstallTask())
-        }        
+        }
     }
 
     // apply config completely
@@ -37,7 +52,7 @@ async function run(options) {
         const p = plugins[i];
         if (p) {
             _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'api', 'config.json'));
-        }        
+        }
     }
 }
 
