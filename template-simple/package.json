@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Template for koa app. This package.json will only serve to copy over the dependencies.",
   "main": "src/koa-index.js",
-  "author": "Kat Lim Ruiz",
+  "author": "Juntoz.com",
   "license": "MIT",
   "dependencies": {
     "ip": "^1.1.5",
