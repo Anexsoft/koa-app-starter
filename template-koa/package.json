@@ -18,13 +18,11 @@
     "koa-sslify": "^4.0.3",
     "koa-x-request-id": "^2.0.0",
     "lodash.get": "^4.4.2",
-    "lodash.map": "^4.6.0",
     "lodash.merge": "^4.6.1",
     "node-cleanup": "^2.1.2",
     "passport-jwt": "^4.0.0",
     "path": "^0.12.7",
     "redis": "^2.8.0",
-    "statman-stopwatch": "^2.8.2",
     "util": "^0.11.1",
     "yargs": "^13.2.1"
   },
