@@ -2,7 +2,6 @@
 
 const path = require('path');
 const fs = require('fs-extra');
-const _get = require('lodash.get');
 const execSync = require('child_process').execSync;
 const terser = require("terser");
 const Plugin = require("./plugin").Plugin;
@@ -11,22 +10,7 @@ async function run(options) {
     console.log('> Starting');
 
     var isWeb = false;
-    var appPluginPath = "";
-    switch (options.apptype) {
-        case 'koa':
-            isWeb = true;
-            appPluginPath = 'template-koa';
-            break;
-        case 'simple':
-            isWeb = true;
-            appPluginPath = 'template-simple';
-            break;
-        case 'topic':
-            appPluginPath = 'template-topic';
-            break;
-        default:
-            throw new Error('Type not recognized');
-    }
+    var appPluginPath = _mapAppType(options.apptype);
 
     var plugins = [
         new Plugin(path.resolve(_getCliPath(), 'partial-common')),
@@ -58,6 +42,18 @@ async function run(options) {
             _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'api', 'config.json'));
         }
     }
+}
+
+var _appTypeMap = null;
+function _mapAppType(appType) {
+    if (!_appTypeMap) {
+        _appTypeMap = [];
+        _appTypeMap['koa'] = 'template-koa';
+        _appTypeMap['simple'] = 'template-simple';
+        _appTypeMap['topic'] = 'template-topic';
+    }
+
+    return _appTypeMap[appType];
 }
 
 /**
