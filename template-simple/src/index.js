@@ -24,9 +24,8 @@ var logger = pino({
 });
 logger.debug('index-logging: success');
 
-var httpHandler = (req, res) => {
-    res.end('hello world');
-};
+// set the main http handler
+const httpHandler = require('./app');
 
 // run
 var listenToPort = argv.port;
