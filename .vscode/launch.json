@@ -56,7 +56,9 @@
                 "--top",
                 "cataloginboundeventqueue",
                 "--sub",
-                "cataloginboundeventqueue_production_1"
+                "cataloginboundeventqueue_production_krk",
+                "--createsub",
+                "1"
             ],
             "outputCapture": "std",
             "skipFiles": [
