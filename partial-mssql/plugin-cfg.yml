@@ -1,3 +1,8 @@
+# configure the copy and minify
+copy:
+    minify:
+        ignore: ['!**/src/api/*']
+
 # add each npm package to install
 npm:
     # install: either array or object syntax

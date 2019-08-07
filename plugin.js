@@ -16,7 +16,7 @@ class Plugin
             this._configData = jsyaml.safeLoad(fs.readFileSync(confpath, 'utf-8'));
         } else {
             this._configData = null;
-        }        
+        }
     }
 
     copyTask() {
@@ -58,9 +58,7 @@ class CopyTask {
                 extensions: [],
                 defaultExtensions: ['.js'],
                 ignore: [], // array of glob paths to ignore to minify
-                defaultIgnore: [
-                    '!**/src/api/*'
-                ]
+                defaultIgnore: []
             },
         };
     }
@@ -76,7 +74,7 @@ class CopyTask {
 
         // build the minify final extension list
         this.config.minify.finalExtensions = this.config.minify.defaultExtensions.concat(this.config.minify.extensions || []);
-        
+
         // build the minify final ignore list
         this.config.minify.finalIgnore = this.config.minify.defaultIgnore.concat(this.config.minify.ignore || []);
     }
@@ -94,7 +92,7 @@ class CopyTask {
             let entries = fg.sync(filePath, { dot: true, ignore: this.config.minify.finalIgnore });
             yes = entries.length > 0;
         }
-        
+
         return yes;
     }
 }
@@ -118,7 +116,7 @@ class NpmInstallTask {
         if (Array.isArray(this.config.install)) {
             var dict = {};
             for (let i = 0; i < this.config.install.length; i++) {
-                dict[this.config.install[i]] = null;                
+                dict[this.config.install[i]] = null;
             }
 
             this.config.install = dict;
@@ -127,7 +125,7 @@ class NpmInstallTask {
 
     readDependencies() {
         // open template package.json if exists
-        var pkgInfo = {};        
+        var pkgInfo = {};
         var pkgPath = path.resolve(this.sourcePath, 'package.json');
         if (fs.existsSync(pkgPath)) {
             pkgInfo = fs.readJsonSync(pkgPath);
@@ -139,7 +137,7 @@ class NpmInstallTask {
             devDependencies: pkgInfo.devDependencies || {}
         };
 
-        result.hasAny = 
+        result.hasAny =
             result.dependencies && Object.keys(result.dependencies).length > 0 ||
             result.devDependencies && Object.keys(result.devDependencies).length > 0;
 
@@ -173,9 +171,9 @@ class UpdateConfigTask {
                 const elem = this.config[i];
                 _set(fileCfg, elem.path, JSON.parse(elem.value));
             }
-    
-            fs.writeJsonSync(filePath, fileCfg, { EOL: '\n', spaces: 4 });    
-        }    
+
+            fs.writeJsonSync(filePath, fileCfg, { EOL: '\n', spaces: 4 });
+        }
     }
 }
 
