@@ -7,8 +7,7 @@ const argv = require('yargs')
     .demandOption('cs')
     .demandOption('top')
     .demandOption('sub')
-    .boolean('createsub')
-    .default('createsub', false)
+    .default('createsub', 0)
     .default('loglevel', 'info')
     .argv;
 
@@ -24,7 +23,7 @@ var busCtx = {
         cs: argv.cs,
         topic: argv.top,
         subscription: argv.sub,
-        shouldCreateSubscription: argv.createsub
+        shouldCreateSubscription: argv.createsub == 1
     },
     logger: logger
 };
