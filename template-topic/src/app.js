@@ -16,9 +16,6 @@ class MessageHandler {
         return busInfo;
     }
 
-    async onSubscriptionCreated(busCtx) {
-    }
-
     async onMessage(busCtx, message) {
     }
 

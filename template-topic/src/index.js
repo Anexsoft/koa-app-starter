@@ -1,14 +1,12 @@
 const { ServiceBusClient } = require("@azure/service-bus");
 const pino = require('pino');
 const AppMessageHandler = require('./app.js');
-const createSubscriptionIfNotExists = require('./create-subscription');
 
 const argv = require('yargs')
-    .usage('Usage: $0 --cs [azure service bus connection string] --top [topic name] --sub [subscription name to the topic] --createsub [create new subscription?] --loglevel [log level]')
+    .usage('Usage: $0 --cs [azure service bus connection string] --top [topic name] --sub [subscription name to the topic] --loglevel [log level]')
     .demandOption('cs')
     .demandOption('top')
     .demandOption('sub')
-    .default('createsub', 0)
     .default('loglevel', 'info')
     .argv;
 
@@ -23,8 +21,7 @@ var busCtx = {
     options: {
         cs: argv.cs,
         topic: argv.top,
-        subscription: argv.sub,
-        shouldCreateSubscription: argv.createsub == 1
+        subscription: argv.sub
     },
     logger: logger
 };
@@ -42,15 +39,6 @@ async function main() {
 
     busCtx.sbClient = ServiceBusClient.createFromConnectionString(busCtx.options.cs);
     logger.info(`index-bus ${busCtx.options.topic}/${busCtx.options.subscription}: bus client connected ${busCtx.options.cs}`);
-
-    if (busCtx.options.shouldCreateSubscription) {
-        // TODO: create the subscription to the topic
-        // var newSubs = await createSubscriptionIfNotExists(busCtx.options);
-
-        // notify the app that it was created
-        // logger.info(`index-bus ${busCtx.options.topic}/${busCtx.options.subscription}: new subscription created`);
-        // appHandler.onSubscriptionCreated(newSubs);
-    }
 
     busCtx.subsClient = busCtx.sbClient.createSubscriptionClient(busCtx.options.topic, busCtx.options.subscription);
     logger.info(`index-bus ${busCtx.options.topic}/${busCtx.options.subscription}: subscription client connected `);
