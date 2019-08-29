@@ -63,9 +63,32 @@ async function main() {
 main()
     .catch(err => {
         logger.error(err);
-    })
-    .finally(async () => {
-        busCtx.receiver ? await busCtx.receiver.close() : null;
-        busCtx.subsClient ? await busCtx.subsClient.close() : null;
-        busCtx.sbClient ? await busCtx.sbClient.close() : null;
     });
+
+// TODO: verify if cleanup works
+/*
+require('node-cleanup')((exitCode, signal) => {
+    try {
+        busCtx.receiver ? await busCtx.receiver.close() : null;
+        console.info(`index-end: clean receiver`);
+    } catch (error) {
+        console.info(`index-end: clean receiver error ${error.message}`);
+    }
+
+    try {
+        busCtx.subsClient ? await busCtx.subsClient.close() : null;
+        console.info(`index-end: clean subsClient`);
+    } catch (error) {
+        console.info(`index-end: clean subsClient error ${error.message}`);
+    }
+
+    try {
+        busCtx.sbClient ? await busCtx.sbClient.close() : null;
+        console.info(`index-end: clean sbClient`);
+    } catch (error) {
+        console.info(`index-end: clean sbClient error ${error.message}`);
+    }
+
+    console.info(`index-end: with code ${exitCode} and signal ${signal}`);
+});
+*/

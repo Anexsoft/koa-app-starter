@@ -77,5 +77,14 @@ The CLI needs to run on an outside console because it requires user input (and V
 ## How to modify the template folder?
 You should treat as if it were a separate application (it has its own package.json, and you can certainly update it with npm install xxx, and so on).
 
+## Development
+Every time you make a change either to the core or to a template, you need to commit and also publish a new version to npm.
+
+Steps:
+- Update package.json to have the new version (e.g. 1.2.10 > 1.2.11)
+- Run npm install. This will not upgrade any package but will replicate the new version into package-lock.json which should always match.
+- Commit and push.
+- Run "publish.bat" to upload to npm.
+
 ## Feedback
 All feedback and contributions are welcome
