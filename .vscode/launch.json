@@ -54,9 +54,9 @@
                 "--cs",
                 "Endpoint=sb://juntoz-esb-srv-staging.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=c31pS5vUNzF7VDexI28Ee1wvAav46HKfqI219VmukAQ=",
                 "--top",
-                "cataloginboundeventqueue",
+                "catalog_syncstockevent",
                 "--sub",
-                "cataloginboundeventqueue_production_krk",
+                "catalog_syncstockevent",
                 "--createsub",
                 "1"
             ],
