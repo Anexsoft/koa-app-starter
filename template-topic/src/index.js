@@ -29,12 +29,7 @@ var busCtx = {
 async function main() {
     var appHandler = new AppMessageHandler();
 
-    logger.debug('index-app: setup start');
-    var ret = appHandler.setup(busCtx.options);
-    if (ret) {
-        // if the method returns a value, assign it so the options can carry more stuff if needed
-        busCtx.options = ret;
-    }
+    appHandler.setup(busCtx);
     logger.info('index-app: setup done');
 
     busCtx.sbClient = ServiceBusClient.createFromConnectionString(busCtx.options.cs);
