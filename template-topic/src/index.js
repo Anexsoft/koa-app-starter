@@ -44,12 +44,11 @@ async function main() {
     // The message handler should keep the loop running and block the exit
     busCtx.receiver.registerMessageHandler(async (msg) => {
         try {
-            throw new Error('bye');
             logger.info(`index-message ${busCtx.options.topic}/${busCtx.options.subscription}: message received id ${msg.messageId} seq ${msg.sequenceNumber}`);
             await appHandler.onMessage(busCtx, msg);
             logger.info(`index-message ${busCtx.options.topic}/${busCtx.options.subscription}: message done id ${msg.messageId} seq ${msg.sequenceNumber}`);
         } catch (err) {
-            logger.error(`index-message: error-in received id ${msg.messageId} seq ${msg.sequenceNumber} error ${err}`);
+            logger.error(`index-message: message error id ${msg.messageId} seq ${msg.sequenceNumber} error ${err}`);
             throw err;
         }
     }, async (err) => {
