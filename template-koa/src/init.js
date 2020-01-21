@@ -44,7 +44,7 @@ async function _initApi(koaApp, modulePath) {
         koaApp.log.trace(`app-api: ${modulePath} found`);
     }
 
-    var configPath = path.resolve(path.dirname(modulePath), 'config.json');
+    var configPath = path.join(__dirname, 'config.json');
     var loadedCfg = await fs.readJson(configPath);
     koaApp.cfg = _merge(_defaultConfig(), loadedCfg);
 
