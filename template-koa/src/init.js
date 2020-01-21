@@ -3,34 +3,32 @@
 const path = require('path');
 const fs = require('fs-extra');
 const _merge = require('lodash.merge');
-const xRequestId = require('koa-x-request-id');
-const koaBodyParser = require('koa-bodyparser');
-const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 
-async function init(koaApp, moduleEntryPath, options) {
-    options = options || {};
-
+async function init(koaApp, moduleEntryPath) {
     // pre-processing
-    _initRequestPrepare(koaApp, options);
+    _pre(koaApp);
 
     // api
     await _initApi(koaApp, moduleEntryPath);
 
     // post-processing
-    _initTools(koaApp);
+    _post(koaApp);
 }
 
-function _initRequestPrepare(koaApp, options) {
+function _pre(koaApp) {
     // set request id
+    const xRequestId = require('koa-x-request-id');
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
     koaApp.log.debug('app-xrequestid: success');
 
     // gather info about the last request, ignore the koa-health-probe default path
+    const koaLastRequest = require('@juntoz/koa-last-request');
     koaApp.use(koaLastRequest({ pathsToIgnore: [koaHealthProbe.defaultPath] }));
     koaApp.log.debug('app-lastrequest: success');
 
     // configure the body parser which will help parse the body and turn in json objects. form fields, etc.
+    const koaBodyParser = require('koa-bodyparser');
     koaApp.use(koaBodyParser());
     koaApp.log.debug('app-bodyparser: success');
 }
@@ -67,7 +65,7 @@ function _defaultConfig() {
     };
 }
 
-function _initTools(koaApp) {
+function _post(koaApp) {
     koaHealthProbe(koaApp);
     koaApp.log.debug('app-probe: success');
 }
