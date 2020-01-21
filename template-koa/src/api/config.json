@@ -7,11 +7,6 @@
             "whoUsesTheToken": "<audience>"
         }
     },
-    "redis": {
-        "host": "<redis host>",
-        "port": "<redis port>",
-        "key": "<redis key>"
-    },
     "options": {
         "dummy": "<dummy>"
     }
