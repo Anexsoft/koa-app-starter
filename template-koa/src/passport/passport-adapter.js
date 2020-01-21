@@ -20,7 +20,7 @@ function _createPassportVerifyDelegate(koaApp, fnPayloadToUser) {
         try {
             var user = fnPayloadToUser(payload);
             if (user) {
-                koaApp.log.trace('passport-verify: success', user);
+                koaApp.log.debug('passport-verify: success', user);
                 return doneCallback(null, user);
             } else {
                 koaApp.log.error('passport-verify: false');

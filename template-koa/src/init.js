@@ -39,7 +39,7 @@ async function _initApi(koaApp, modulePath) {
     if (!moduleSetup || typeof moduleSetup !== 'function') {
         throw new Error(`app-api: ${modulePath} not found or not a function`);
     } else {
-        koaApp.log.trace(`app-api: ${modulePath} found`);
+        koaApp.log.debug(`app-api: ${modulePath} found`);
     }
 
     // load the api config
