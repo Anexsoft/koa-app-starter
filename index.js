@@ -5,7 +5,7 @@ const process = require('process');
 const path = require('path');
 const fs = require('fs-extra');
 
-const run = require('./app.js');
+const run = require('./app');
 
 // command args
 const argv = require('yargs')

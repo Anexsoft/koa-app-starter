@@ -4,7 +4,7 @@
 const argv = require('yargs')
     .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level] --env [dev or stg or prod]')
     .demandOption(['port'])
-    .default('module', './api/api.js')
+    .default('module', './api/api')
     .demandOption(['module'])
     .default('loglevel', 'info')
     .choices('loglevel', ['debug', 'info', 'warn', 'error'])
@@ -24,7 +24,7 @@ koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
 // init application
-const appInit = require('./init.js/index.js');
+const appInit = require('./init');
 appInit(koaApp, argv.module);
 
 // run

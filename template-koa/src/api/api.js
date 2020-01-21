@@ -1,10 +1,10 @@
 'use strict';
 
 const KoaRouter = require('koa-router');
-const passportSetup = require('../passport/passport-adapter.js').setup;
-const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
-const passportJwtAuthenticate = require('../passport/passport-strategy-jwt.js').authenticate;
-const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt.js').buildAuthorizeMw;
+const passportSetup = require('../passport/passport-adapter').setup;
+const passportJwtSetup = require('../passport/passport-strategy-jwt').setup;
+const passportJwtAuthenticate = require('../passport/passport-strategy-jwt').authenticate;
+const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt').buildAuthorizeMw;
 
 /**
  * Setup the api (config and routes)
