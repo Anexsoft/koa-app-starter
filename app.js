@@ -9,12 +9,9 @@ const Plugin = require("./plugin").Plugin;
 async function run(options) {
     console.log('> Starting');
 
-    var isWeb = false;
     var appPluginPath = _mapAppType(options.apptype);
 
     var plugins = [
-        new Plugin(path.resolve(_getCliPath(), 'partial-common')),
-        isWeb ? new Plugin(path.resolve(_getCliPath(), 'partial-common-web')) : null,
         options.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
         new Plugin(path.resolve(_getCliPath(), appPluginPath))
     ];
