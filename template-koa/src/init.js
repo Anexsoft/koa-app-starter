@@ -1,19 +1,21 @@
 'use strict';
 
-// ================ requires ===================
+const path = require('path');
+const fs = require('fs-extra');
+const _merge = require('lodash.merge');
 const xRequestId = require('koa-x-request-id');
 const koaBodyParser = require('koa-bodyparser');
 const koaLastRequest = require('@juntoz/koa-last-request');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 
-function init(koaApp, moduleEntryPath, options) {
+async function init(koaApp, moduleEntryPath, options) {
     options = options || {};
 
     // pre-processing
     _initRequestPrepare(koaApp, options);
 
     // api
-    _initApi(koaApp, moduleEntryPath);
+    await _initApi(koaApp, moduleEntryPath);
 
     // post-processing
     _initTools(koaApp);
@@ -33,7 +35,7 @@ function _initRequestPrepare(koaApp, options) {
     koaApp.log.debug('app-bodyparser: success');
 }
 
-function _initApi(koaApp, moduleEntryPath) {
+async function _initApi(koaApp, moduleEntryPath) {
     // load the api module from the index root
     const moduleSetup = require.main.require(moduleEntryPath);
     if (!moduleSetup || typeof moduleSetup !== 'function') {
@@ -42,9 +44,26 @@ function _initApi(koaApp, moduleEntryPath) {
         koaApp.log.trace(`app-api: ${moduleEntryPath} found`);
     }
 
+    var configPath = path.resolve(path.dirname(moduleEntryPath), 'config.json');
+    var loadedCfg = await fs.readJson(configPath);
+    koaApp.cfg = _merge(_defaultConfig(), loadedCfg);
+
     // call the api setup
-    moduleSetup(koaApp);
+    await moduleSetup(koaApp, configObj);
     koaApp.log.info(`app-api: ${moduleEntryPath} success`);
+}
+
+function _defaultConfig() {
+    return {
+        name: null,
+        auth: {
+            jwt: {
+                whoIssuedTheToken: null,
+                keyToEncryptTheToken: null,
+                whoUsesTheToken: null            
+            }
+        }
+    };
 }
 
 function _initTools(koaApp) {

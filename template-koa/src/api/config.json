@@ -6,8 +6,5 @@
             "keyToEncryptTheToken": "<key>",
             "whoUsesTheToken": "<audience>"
         }
-    },
-    "options": {
-        "dummy": "<dummy>"
     }
 }

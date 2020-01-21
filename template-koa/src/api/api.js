@@ -1,35 +1,17 @@
 'use strict';
 
 const KoaRouter = require('koa-router');
-const _merge = require('lodash.merge');
-
-const loadConfig = require('../common/load-config.js');
 const passportSetup = require('../passport/passport-adapter.js').setup;
 const passportJwtSetup = require('../passport/passport-strategy-jwt.js').setup;
 const passportJwtAuthenticate = require('../passport/passport-strategy-jwt.js').authenticate;
 const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt.js').buildAuthorizeMw;
-
-// configKey: key to obtain the config object
-// eslint-disable-next-line no-unused-vars
-var configKey = null;
 
 /**
  * Setup the api (config and routes)
  * @param {*} koaApp Current koa application that will contain this api
  * @param {*} config Configuration
  */
-function setup(koaApp, config) {
-    if (config == null) {
-        try {
-            config = loadConfig(__dirname);
-        } catch (error) {
-            throw new Error('Config object was null, and config file was not loaded. ' + error.message);
-        }
-    }
-
-    // read the config
-    _setupConfig(koaApp, config);
-
+async function setup(koaApp, config) {
     // setup the authentication
     _setupAuth(koaApp);
 
@@ -40,16 +22,6 @@ function setup(koaApp, config) {
     // db.setup(koaApp, config);
 }
 
-function _setupConfig(koaApp, config) {
-    // resolve options
-    var defaultOptions = { /* TODO: set the default options for this api */ };
-    config.options = _merge(defaultOptions, config.options);
-
-    // store the config for future reference
-    koaApp.config[configKey = config.name] = config;
-    koaApp.log.debug('api-config: success');
-}
-
 function _setupAuth(koaApp) {
     // set the passport basis
     var passport = passportSetup(koaApp, (payload) => {
@@ -58,7 +30,7 @@ function _setupAuth(koaApp) {
     });
 
     // set the strategy
-    var jwtcfg = koaApp.config[configKey].auth.jwt;
+    var jwtcfg = koaApp.cfg.auth.jwt;
     passportJwtSetup(koaApp, passport, {
         whoIssuedTheToken: jwtcfg.whoIssuedTheToken,
         keyToEncryptTheToken: jwtcfg.keyToEncryptTheToken,

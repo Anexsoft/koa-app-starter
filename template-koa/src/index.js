@@ -16,9 +16,6 @@ const argv = require('yargs')
 const Koa = require('koa');
 const koaApp = new Koa();
 
-// create a config repository so the APIs can store and quick reference that
-koaApp.config = [];
-
 // set logging
 const KoaPinoLogger = require('koa-pino-logger');
 var kplmw = KoaPinoLogger({ level: argv.loglevel });
