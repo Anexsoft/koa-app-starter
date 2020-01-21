@@ -2,9 +2,9 @@
     "name": "<api name>",
     "auth": {
         "jwt": {
-            "issuer": "<issuer>",
-            "secretOrKey": "<key>",
-            "audience": "<audience>"
+            "whoIssuedTheToken": "<issuer>",
+            "keyToEncryptTheToken": "<key>",
+            "whoUsesTheToken": "<audience>"
         }
     }
 }
