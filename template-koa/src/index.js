@@ -27,8 +27,8 @@ koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
 // init application
-const thisApp = require('./koa-app.js');
-thisApp(koaApp, argv.module);
+const appInit = require('./init.js/index.js');
+appInit(koaApp, argv.module);
 
 // run
 var srv = require('http').createServer(koaApp.callback());
