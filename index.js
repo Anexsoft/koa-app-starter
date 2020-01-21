@@ -15,10 +15,6 @@ const argv = require('yargs')
 async function doInit() {
     var root = _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
-    if (answers.overwrite === false) {
-        process.exit(0);
-    }
-
     await run(answers);
 }
 
@@ -60,13 +56,6 @@ function _questions(root) {
             name: 'dest',
             default: root
         },
-        {
-            type: 'confirm',
-            message: 'The destination already exists, do you want to overwrite?',
-            name: 'overwrite',
-            default: false,
-            when: function (ans) { return fs.existsSync(ans.dest); }
-        }
     ];
 }
 
