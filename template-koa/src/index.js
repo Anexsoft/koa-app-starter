@@ -4,7 +4,7 @@
 const argv = require('yargs')
     .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level] --env [dev or stg or prod]')
     .demandOption(['port'])
-    .default('module', './api/api')
+    .default('module', './api/api.js')
     .demandOption(['module'])
     .default('loglevel', 'info')
     .choices('loglevel', ['debug', 'info', 'warn', 'error'])

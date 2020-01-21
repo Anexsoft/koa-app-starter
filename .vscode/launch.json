@@ -28,43 +28,6 @@
                 "${workspaceFolder}/node_modules/**/*.js",
                 "<node_internals>/**/*.js"
             ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Tm Simple",
-            "program": "${workspaceFolder}/template-simple/src/index.js",
-            "args": [
-                "--port",
-                "3010",
-                "--nohttps"
-            ],
-            "outputCapture": "std",
-            "skipFiles": [
-                "${workspaceFolder}/node_modules/**/*.js",
-                "<node_internals>/**/*.js"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Tm Topic",
-            "program": "${workspaceFolder}/template-topic/src/index.js",
-            "args": [
-                "--cs",
-                "Endpoint=sb://juntoz-esb-srv-staging.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=c31pS5vUNzF7VDexI28Ee1wvAav46HKfqI219VmukAQ=",
-                "--top",
-                "catalog_syncstockevent",
-                "--sub",
-                "catalog_syncstockevent",
-                "--createsub",
-                "1"
-            ],
-            "outputCapture": "std",
-            "skipFiles": [
-                "${workspaceFolder}/node_modules/**/*.js",
-                "<node_internals>/**/*.js"
-            ]
         }
     ]
 }
