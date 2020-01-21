@@ -43,10 +43,10 @@ function _questions(root) {
     return [
         {
             type: 'list',
-            message: 'What type of app do you want (koa/simple/topic)?',
+            message: 'What type of app do you want (koa)?',
             name: 'apptype',
             default: 'koa',
-            choices: ['koa', 'simple', 'topic']
+            choices: ['koa']
         },
         {
             type: 'confirm',

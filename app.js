@@ -49,8 +49,6 @@ function _mapAppType(appType) {
     if (!_appTypeMap) {
         _appTypeMap = [];
         _appTypeMap['koa'] = 'template-koa';
-        _appTypeMap['simple'] = 'template-simple';
-        _appTypeMap['topic'] = 'template-topic';
     }
 
     return _appTypeMap[appType];

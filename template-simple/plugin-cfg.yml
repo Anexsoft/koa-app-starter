@@ -1,4 +1,0 @@
-# configure the copy and minify
-copy:
-    minify:
-        ignore: ['!**/src/app.js']
