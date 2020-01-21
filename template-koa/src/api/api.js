@@ -11,7 +11,7 @@ const passportJwtAuthorizeMw = require('../passport/passport-strategy-jwt').buil
  * @param {*} koaApp Current koa application that will contain this api
  * @param {*} config Configuration
  */
-async function setup(koaApp, config) {
+async function setup(koaApp) {
     // setup the authentication
     _setupAuth(koaApp);
 

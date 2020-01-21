@@ -35,22 +35,22 @@ function _initRequestPrepare(koaApp, options) {
     koaApp.log.debug('app-bodyparser: success');
 }
 
-async function _initApi(koaApp, moduleEntryPath) {
+async function _initApi(koaApp, modulePath) {
     // load the api module from the index root
-    const moduleSetup = require.main.require(moduleEntryPath);
+    const moduleSetup = require.main.require(modulePath);
     if (!moduleSetup || typeof moduleSetup !== 'function') {
-        throw new Error(`app-api: ${moduleEntryPath} not found or not a function`);
+        throw new Error(`app-api: ${modulePath} not found or not a function`);
     } else {
-        koaApp.log.trace(`app-api: ${moduleEntryPath} found`);
+        koaApp.log.trace(`app-api: ${modulePath} found`);
     }
 
-    var configPath = path.resolve(path.dirname(moduleEntryPath), 'config.json');
+    var configPath = path.resolve(path.dirname(modulePath), 'config.json');
     var loadedCfg = await fs.readJson(configPath);
     koaApp.cfg = _merge(_defaultConfig(), loadedCfg);
 
     // call the api setup
-    await moduleSetup(koaApp, configObj);
-    koaApp.log.info(`app-api: ${moduleEntryPath} success`);
+    await moduleSetup(koaApp);
+    koaApp.log.info(`app-api: ${modulePath} success`);
 }
 
 function _defaultConfig() {
