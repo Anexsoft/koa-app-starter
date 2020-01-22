@@ -20,7 +20,11 @@ async function run(options) {
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
         if (p) {
-            _buildDestinationFolder(p.copyTask(), options.dest);
+            // first initialize
+            await p.init();
+
+            // then execute it
+            await _buildDestinationFolder(p.copyTask(), options.dest);
         }
     }
 
@@ -28,7 +32,7 @@ async function run(options) {
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
         if (p) {
-            _installTemplateDeps(p.npmInstallTask())
+            await _installTemplateDeps(p.npmInstallTask())
         }
     }
 
@@ -36,8 +40,8 @@ async function run(options) {
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
         if (p) {
-            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.json'));
-            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.local.json'));
+            await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.json'));
+            await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.local.json'));
         }
     }
 }
@@ -65,15 +69,16 @@ function _isDebugEnv() {
     return _getCliPath() === process.cwd();
 }
 
-function _buildDestinationFolder(copyTask, destPath) {
-    let entries = copyTask.getFilesToCopy();
+async function _buildDestinationFolder(copyTask, destPath) {
+    let entries = await copyTask.getFilesToCopy();
     for (let i = 0; i < entries.length; i++) {
-        let entry = entries[i];
+        // NOTE: fg glob output is also forward slash
+        let entry = path.normalize(entries[i]);
 
         // convert the entry to the destination
         let destfile = path.resolve(destPath, path.relative(copyTask.config.path, entry));
 
-        if (copyTask.shouldMinify(entry)) {
+        if (await copyTask.shouldMinify(entry)) {
             // minify the js files except for some we want to ignore
             var minResult = _minifyJs(entry, destfile);
 
@@ -88,14 +93,14 @@ function _buildDestinationFolder(copyTask, destPath) {
             }
         } else {
             // simple copy of the file
-            fs.copySync(entry, destfile, { overwrite: true });
+            await fs.copy(entry, destfile, { overwrite: true });
             console.log(`>> Copied ${destfile}`);
         }
     }
 }
 
-function _minifyJs(inPath, outPath) {
-    var inContent = fs.readFileSync(inPath, "utf8");
+async function _minifyJs(inPath, outPath) {
+    var inContent = await fs.readFile(inPath, "utf8");
 
     var mincode = {};
     mincode[path.basename(inPath)] = inContent;
@@ -110,8 +115,8 @@ function _minifyJs(inPath, outPath) {
         try {
             // disable eslint on minified files
             var inMinContent = '/* eslint-disable */\n' + uglycode.code;
-            fs.createFileSync(outPath);
-            fs.writeFileSync(outPath, inMinContent);
+            await fs.createFile(outPath);
+            await fs.writeFile(outPath, inMinContent);
             return {
                 ok: true
             };
@@ -125,9 +130,9 @@ function _minifyJs(inPath, outPath) {
     }
 }
 
-function _installTemplateDeps(npmInsTask) {
+async function _installTemplateDeps(npmInsTask) {
     // process package.json
-    var pkg = npmInsTask.readDependencies();
+    var pkg = await npmInsTask.readDependencies();
     if (pkg.hasAny) {
         console.log('> Install npm dependencies (this could take some minutes). Please do not touch the console.');
 
@@ -142,6 +147,7 @@ function _installTemplateDeps(npmInsTask) {
                 // this works well when the package.json already contains a version of the package.
                 var cmd = `npm install ${elem.args} ${pkgKey}@latest`;
                 if (!_isDebugEnv()) {
+                    // force sync processing because we want to wait until doing the following npm install
                     execSync(cmd, { stdio: [0, 1, 2] });
                 } else {
                     // NOTE: when debugging, do not mess with any package.json
@@ -152,10 +158,10 @@ function _installTemplateDeps(npmInsTask) {
     }
 }
 
-function _applyConfig(configTask, configFile) {
+async function _applyConfig(configTask, configFile) {
     if (configTask.hasAny()) {
         console.log(`>> Updating config file ${configFile}`);
-        configTask.applyToFile(configFile);
+        await configTask.applyToFile(configFile);
         console.log('>> Updated');
     }
 }

@@ -27,6 +27,7 @@
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.2",
     "lodash.set": "^4.3.2",
+    "normalize-path": "^3.0.0",
     "terser": "^4.6.3",
     "yargs": "^15.1.0"
   },

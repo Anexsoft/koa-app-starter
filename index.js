@@ -13,15 +13,16 @@ const argv = require('yargs')
     .argv;
 
 async function doInit() {
-    var root = _checkCwdRoot();
+    var root = await _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
     await run(answers);
 }
 
-function _checkCwdRoot() {
+async function _checkCwdRoot() {
     var cwd = process.cwd();
     var pckjson = path.resolve(cwd, 'package.json');
-    if (!fs.existsSync(pckjson)) {
+    var found = await fs.exists(pckjson);
+    if (!found) {
         console.warn('Warning: you are not currently located in the root of the folder (no package.json was found). It is better to exit and relocate.');
     }
 

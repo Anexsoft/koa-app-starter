@@ -4,16 +4,19 @@ const jsyaml = require('js-yaml');
 const _merge = require('lodash.merge');
 const _set = require('lodash.set');
 const fg = require('fast-glob');
+const normalizePath = require('normalize-path');
 
 class Plugin
 {
     constructor(pluginPath) {
         this.pluginPath = pluginPath;
+    }
 
+    async init() {
         // if the file does not exist, simply assume the default config
         var confpath = path.join(this.pluginPath, 'plugin-cfg.yml');
-        if (fs.existsSync(confpath)) {
-            this._configData = jsyaml.safeLoad(fs.readFileSync(confpath, 'utf-8'));
+        if (await fs.exists(confpath)) {
+            this._configData = jsyaml.safeLoad(await fs.readFile(confpath, 'utf-8'));
         } else {
             this._configData = null;
         }
@@ -79,17 +82,24 @@ class CopyTask {
         this.config.minify.finalIgnore = this.config.minify.defaultIgnore.concat(this.config.minify.ignore || []);
     }
 
-    getFilesToCopy() {
-        return fg.sync(path.join(this.config.path, '**'), { dot: true, ignore: this.config.finalIgnore });
+    async getFilesToCopy() {
+        var globin = path.join(this.config.path, '**');
+
+        // fg globs always work with forward slash
+        var nglobin = normalizePath(globin);
+        return await fg(nglobin, { dot: true, ignore: this.config.finalIgnore });
     }
 
-    shouldMinify(filePath) {
+    async shouldMinify(filePath) {
         // verify if it has the extension
         var yes = this.config.minify.finalExtensions.indexOf(path.extname(filePath)) >= 0;
 
         if (yes) {
             // verify if file is not in the ignore list
-            let entries = fg.sync(filePath, { dot: true, ignore: this.config.minify.finalIgnore });
+
+            // fg globs always work with forward slash
+            var nglobin = normalizePath(filePath);
+            let entries = await fg(nglobin, { dot: true, ignore: this.config.minify.finalIgnore });
             yes = entries.length > 0;
         }
 
@@ -123,12 +133,12 @@ class NpmInstallTask {
         }
     }
 
-    readDependencies() {
+    async readDependencies() {
         // open template package.json if exists
         var pkgInfo = {};
         var pkgPath = path.resolve(this.sourcePath, 'package.json');
-        if (fs.existsSync(pkgPath)) {
-            pkgInfo = fs.readJsonSync(pkgPath);
+        if (await fs.exists(pkgPath)) {
+            pkgInfo = await fs.readJson(pkgPath);
         }
 
         // return the dependencies merged between package.json and plugin config file
@@ -163,16 +173,16 @@ class UpdateConfigTask {
         return this.config.length > 0;
     }
 
-    applyToFile(filePath) {
+    async applyToFile(filePath) {
         if (this.hasAny()) {
-            var fileCfg = fs.readJsonSync(filePath);
+            var fileCfg = await fs.readJson(filePath);
 
             for (let i = 0; i < this.config.length; i++) {
                 const elem = this.config[i];
                 _set(fileCfg, elem.path, JSON.parse(elem.value));
             }
 
-            fs.writeJsonSync(filePath, fileCfg, { EOL: '\n', spaces: 4 });
+            await fs.writeJson(filePath, fileCfg, { EOL: '\n', spaces: 4 });
         }
     }
 }
