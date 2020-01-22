@@ -41,7 +41,7 @@ function __setupRoutes(koaApp, koaRouter) {
 
     // protected endpoint + user, note that 'passportJwtAuthenticate' is used as a pre-step to the real action
     koaRouter
-        .get('/xxx2/:id', koaApp.passportUtil.authenticate, async function(ctx, next) {
+        .get('/xxx2/:id', koaApp.pptMW.getAuthenticate(), async function(ctx, next) {
             ctx.log.debug('getXXX2ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],
@@ -53,7 +53,7 @@ function __setupRoutes(koaApp, koaRouter) {
 
     // protected endpoint + roles, validate the user and also which roles that user has
     koaRouter
-        .get('/xxx3/:id', koaApp.passportUtil.authenticate, koaApp.passportUtil.generateValidateRoles(['admin']), async function(ctx, next) {
+        .get('/xxx3/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRoles(['admin']), async function(ctx, next) {
             ctx.log.debug('getXXX3ById-api: start', ctx.params);
             ctx.body = {
                 id: ctx.params['id'],

@@ -17,6 +17,7 @@
     "koa-router": "^7.4.0",
     "koa-x-request-id": "^2.0.0",
     "lodash.get": "^4.4.2",
+    "lodash.intersection": "^4.4.0",
     "lodash.merge": "^4.6.1",
     "node-cleanup": "^2.1.2",
     "passport-jwt": "^4.0.0",
