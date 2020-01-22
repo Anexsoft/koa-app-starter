@@ -22,7 +22,7 @@ async function init(koaApp, moduleEntryPath) {
 
 async function _pre(koaApp) {
     // load the api config based on environment
-    var configPath = path.join(__dirname, global.env === 'dev' ? 'config.local.json' : 'config.json');
+    var configPath = path.join(__dirname, 'cfg', global.env === 'dev' ? 'config.local.json' : 'config.json');
     var loadedCfg = await fs.readJson(configPath);
     koaApp.cfg = _merge(_defaultConfig(), loadedCfg);
 
