@@ -138,7 +138,9 @@ function _installTemplateDeps(npmInsTask) {
             { list: pkg.devDependencies, args: '--save-dev' },
         ].forEach(elem => {
             for (const pkgKey in elem.list) {
-                var cmd = `npm install ${elem.args} ${pkgKey}`;
+                // set @latest to always force the latest option
+                // this works well when the package.json already contains a version of the package.
+                var cmd = `npm install ${elem.args} ${pkgKey}@latest`;
                 if (!_isDebugEnv()) {
                     execSync(cmd, { stdio: [0, 1, 2] });
                 } else {
