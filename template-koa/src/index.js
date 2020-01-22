@@ -16,6 +16,9 @@ const argv = require('yargs')
 const Koa = require('koa');
 const koaApp = new Koa();
 
+// set the environment name in the global object so the entire program can read it
+global.env = argv.env;
+
 // set logging
 const KoaPinoLogger = require('koa-pino-logger');
 var kplmw = KoaPinoLogger({ level: argv.loglevel });
