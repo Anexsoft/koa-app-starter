@@ -9,7 +9,7 @@ async function initAuthJwt(koaApp, authCfg) {
     if (!authCfg.jwt) {
         throw new Error('jwt is the only passport method available');
     }
-
+/*
     if (!authCfg.jwt.issuer) {
         throw new Error('jwt.issuer is mandatory');
     }
@@ -20,7 +20,7 @@ async function initAuthJwt(koaApp, authCfg) {
 
     if (!authCfg.jwt.audience) {
         throw new Error('jwt.audience is mandatory');
-    }
+    }*/
 
     koaApp.use(passport.initialize());
     koaApp.log.debug('passport-setup: passport init success');
@@ -36,7 +36,7 @@ async function initAuthJwt(koaApp, authCfg) {
 
     // create passport middleware getters
     koaApp.pptMW = {
-        getAuthenticate: () => { return _mwAuthenticate; },
+        getAuthenticate: _mwAuthenticate,
         getAuthorizeRoles: _mwAuthorize
     };
 }
@@ -60,24 +60,26 @@ function _passportVerify(payload, doneCallback) {
     }
 }
 
-async function _mwAuthenticate(ctx, next) {
-    // https://github.com/rkusa/koa-passport/issues/125#issuecomment-462614317
+function _mwAuthenticate() {
+    // call to passport.authenticate returns a koa middleware
+    return passport.authenticate(strategyName, { session: false });
+}
 
-    return passport.authenticate(strategyName, { session: false }, async (err, user, info) => {
-        if (err || !user) {
-            ctx.log.error('passport-auth: user unauthenticated', { err: err, user: user, info: info });
-            ctx.throw(401, 'passport-auth: user unauthenticated');
-        }
+async function _debugPassportCallback(err, user, info) {
+    // https://dmitryrogozhny.com/blog/easy-way-to-debug-passport-authentication-in-express
+    if (global.env !== 'dev') {
+        // DO NOT SETUP ON PRODUCTION, only use it for development
+        // EVEN WORSE, when activated the response may be 404 instead of the 401, so it
+        // definitely needs to be avoided in PRODUCTION
+        throw new Error('INVALID CALL TO DEBUG PASSPORT');
+    }
 
-        ctx.log.debug('passport-auth: user authenticated', { user: user });
-
-        // NOTE: in theory passport should do this automatically, although I haven't found a way to do it
-        // The good part is by assigning this, ctx.isAuthenticated gives you true as expected
-        ctx.req.user = user;
-
-        await next();
-    })(ctx);
-};
+    // when error, err is not null or user is false
+    if (err || !user) {
+        // in this case, it is ok to do console.log because it is for debugging only
+        console.log(`passport-debug-error: ${info.message}`);
+    }
+}
 
 function _mwAuthorize(acceptRoles) {
     // always end in an array

@@ -2,9 +2,9 @@
     "name": "<api name>",
     "auth": {
         "jwt": {
-            "issuer": "<issuer>",
-            "secretOrKey": "<key>",
-            "audience": "<audience>"
+            "issuer": "id.juntoz.com",
+            "secretOrKey": "secret1",
+            "audience": "apilive.com"
         }
     }
 }

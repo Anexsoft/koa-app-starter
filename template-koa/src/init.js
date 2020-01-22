@@ -44,7 +44,7 @@ async function _pre(koaApp) {
 
 async function _initAuth(koaApp) {
     if (koaApp.cfg.auth) {
-        _initAuthJwt(koaApp, koaApp.cfg.auth);
+        await _initAuthJwt(koaApp, koaApp.cfg.auth);
         koaApp.log.debug('passport-setup: jwt success');
     } else {
         koaApp.log.info('passport-setup: anonymous access');
