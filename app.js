@@ -36,7 +36,8 @@ async function run(options) {
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
         if (p) {
-            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'config.json'));
+            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.json'));
+            _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.local.json'));
         }
     }
 }
