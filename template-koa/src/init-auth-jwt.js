@@ -32,7 +32,7 @@ async function initAuthJwt(koaApp, authCfg) {
         audience: authCfg.jwt.audience
     };
 
-    passport.use(strategyName, new JwtStrategy(jwtOptions, _passportVerify));
+    passport.use(strategyName, new JwtStrategy(jwtOptions, getPassportVerifier(koaApp)));
 
     // create passport middleware getters
     koaApp.pptMW = {
@@ -41,23 +41,25 @@ async function initAuthJwt(koaApp, authCfg) {
     };
 }
 
-function _passportVerify(payload, doneCallback) {
-    // verify the payload and convert to the user object which becomes the identity
-    // of the request.
-    try {
-        // var user = fnPayloadToUser(payload);
-        var user = payload;
-        if (user) {
-            koaApp.log.debug('passport-verify: success', user);
-            return doneCallback(null, user);
-        } else {
-            koaApp.log.error('passport-verify: false');
-            return doneCallback(null, false);
+function getPassportVerifier(koaApp) {
+    return function _passportVerify(payload, doneCallback) {
+        // verify the payload and convert to the user object which becomes the identity
+        // of the request.
+        try {
+            // var user = fnPayloadToUser(payload);
+            var user = payload;
+            if (user) {
+                koaApp.log.debug('passport-verify: success', user);
+                return doneCallback(null, user);
+            } else {
+                koaApp.log.error('passport-verify: false');
+                return doneCallback(null, false);
+            }
+        } catch (error) {
+            koaApp.log.error('passport-verify: error');
+            return doneCallback(error, false);
         }
-    } catch (error) {
-        koaApp.log.error('passport-verify: error');
-        return doneCallback(error, false);
-    }
+    };
 }
 
 function _mwAuthenticate() {
