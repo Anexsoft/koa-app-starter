@@ -29,6 +29,7 @@ koaApp.log.debug('index-logging: success');
 // init application
 const appInit = require('./init');
 appInit(koaApp, argv.module);
+koaApp.log.debug('index-app: success');
 
 // run
 var srv = require('http').createServer(koaApp.callback());
