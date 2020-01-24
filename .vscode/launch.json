@@ -22,7 +22,7 @@
             "request": "launch",
             "name": "Launch Tm Koa",
             "program": "${workspaceFolder}/template-koa/src/index.js",
-            "args": ["--port", "3010", "--nohttps"],
+            "args": ["--port", "3000"],
             "outputCapture": "std",
             "skipFiles": [
                 "${workspaceFolder}/node_modules/**/*.js",

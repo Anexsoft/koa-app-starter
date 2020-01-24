@@ -63,7 +63,7 @@ In order to run either of the two from VS Code, you need to define like this:
             "request": "launch",
             "name": "Launch Template",
             "program": "${workspaceFolder}/template-koa/src/koa-index.js",
-            "args": ["--port", "3010"],
+            "args": ["--port", "3000"],
             "outputCapture": "std"
         }
     ]
