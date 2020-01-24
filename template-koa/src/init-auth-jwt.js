@@ -63,8 +63,20 @@ function getPassportVerifier(koaApp) {
 }
 
 function _mwAuthenticate() {
+    var args = [
+        // arg 1
+        strategyName,
+        // arg 2
+        { session: false }
+    ];
+
+    if (global.env == 'dev') {
+        // arg 3
+        args.push(_debugPassportCallback)
+    }
+
     // call to passport.authenticate returns a koa middleware
-    return passport.authenticate(strategyName, { session: false });
+    return passport.authenticate(...args);
 }
 
 async function _debugPassportCallback(err, user, info) {
@@ -79,7 +91,7 @@ async function _debugPassportCallback(err, user, info) {
     // when error, err is not null or user is false
     if (err || !user) {
         // in this case, it is ok to do console.log because it is for debugging only
-        console.log(`passport-debug-error: ${info.message}`);
+        console.log(`passport-debug-error: ${info.message} ... ${JSON.stringify(info)}`);
     }
 }
 
