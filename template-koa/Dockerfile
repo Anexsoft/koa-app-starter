@@ -12,15 +12,14 @@ RUN npm install
 
 FROM builder as run
 
-# install pino-papertrail globally so it can be accessed when piping
-RUN npm install -g pino-papertrail
+# install pino-papertrail
+RUN npm install pino-papertrail
 
-# NOTE: it seems that node program only works at root. TODO: This needs to be fixed to make it more robust
 COPY --from=builder /app /app
 
 # expose needed port
 EXPOSE ${API_PORT}
 
 # ENV variables: API_PORT, LOG_LEVEL, RUN_ENV
-ENTRYPOINT node /app/src/index.js --port ${API_PORT} --loglevel ${LOG_LEVEL} --env ${RUN_ENV}
-    # | pino-papertrail --host ppthost --port pptport --appname myappname-${RUN_ENV} --connection tcp
+ENTRYPOINT node "/app/src/index.js" --port ${API_PORT} --loglevel ${LOG_LEVEL} --env ${RUN_ENV} \
+    | node "/app/node_modules/pino-papertrail/cli.js" --host xxx.papertrailapp.com --port xxx --appname xxx-${RUN_ENV} --connection tcp
