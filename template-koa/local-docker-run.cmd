@@ -1,1 +1,1 @@
-docker run -d -e API_PORT=3000 -e LOG_LEVEL=info -e RUN_ENV=dev -p 3000:3000 myapp:latest
+docker run -d -e API_PORT=#appport# -e LOG_LEVEL=info -e RUN_ENV=dev -p #appport#:#appport# #appname#:latest

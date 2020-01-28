@@ -3,8 +3,9 @@
 const path = require('path');
 const fs = require('fs-extra');
 const execSync = require('child_process').execSync;
-const terser = require("terser");
-const Plugin = require("./plugin").Plugin;
+const terser = require('terser');
+const Plugin = require('./plugin').Plugin;
+const ReplaceVarsTask = require('./plugin').ReplaceVarsTask;
 
 async function run(options) {
     console.log('> Starting');
@@ -44,16 +45,24 @@ async function run(options) {
             await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.local.json'));
         }
     }
+
+    // replace variables in all files that were generated
+    var vars = {
+        appport: options.appport,
+        appname: options.appname,
+        appaudience: options.appaudience
+    };
+
+    _replaceVariables(vars, path.join(options.dest, '**'));
 }
 
-var _appTypeMap = null;
 function _mapAppType(appType) {
-    if (!_appTypeMap) {
-        _appTypeMap = [];
-        _appTypeMap['koa'] = 'template-koa';
+    switch(appType) {
+        case 'koa-api': 
+            return 'template-koa';
+        default:
+            return null;
     }
-
-    return _appTypeMap[appType];
 }
 
 /**
@@ -164,6 +173,19 @@ async function _applyConfig(configTask, configFile) {
         await configTask.applyToFile(configFile);
         console.log('>> Updated');
     }
+}
+
+async function _replaceVariables(vars, sourcePath) {
+    var replaceTask = new ReplaceVarsTask(sourcePath);
+    var results = await replaceTask.process(vars);
+
+    console.log(`> Updating vars in files in ${sourcePath}`);
+    for (let i = 0; i < results.length; i++) {
+        const element = results[i];
+        console.log(`>> Vars found and updated in file ${element.file}`);
+    }
+
+    console.log(`> Done updated vars`);
 }
 
 module.exports = run;

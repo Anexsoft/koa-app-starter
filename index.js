@@ -51,7 +51,8 @@ function _questions(root) {
             type: 'input',
             message: 'What audience will this API belong to?',
             name: 'appaudience',
-            when: (ans) => ans.apptype == 'koa-api'
+            when: (ans) => ans.apptype == 'koa-api',
+            validate: (input, ans) => input !== ''
         },
         {
             type: 'confirm',
@@ -69,7 +70,7 @@ function _questions(root) {
             type: 'input',
             message: 'What should be the name of your docker image (e.g. juntoz-api-core-client)? This is mandatory.',
             name: 'appname',
-            validate: (input, ans) => input
+            validate: (input, ans) => input !== ''
         },
     ];
 }

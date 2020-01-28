@@ -22,4 +22,4 @@ EXPOSE ${API_PORT}
 
 # ENV variables: API_PORT, LOG_LEVEL, RUN_ENV
 ENTRYPOINT node "/app/src/index.js" --port ${API_PORT} --loglevel ${LOG_LEVEL} --env ${RUN_ENV} \
-    | node "/app/node_modules/pino-papertrail/cli.js" --host xxx.papertrailapp.com --port xxx --appname xxx-${RUN_ENV} --connection tcp
+    | node "/app/node_modules/pino-papertrail/cli.js" --host xxx.papertrailapp.com --port xxx --appname #appname#-${RUN_ENV} --connection tcp

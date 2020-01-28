@@ -187,9 +187,57 @@ class UpdateConfigTask {
     }
 }
 
+class ReplaceVarsTask {
+    constructor(sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    _defaultCfg() {
+        // no default config
+        return [];
+    }
+
+    merge(cfg) {
+        this.config = _merge(this._defaultCfg(), cfg || []);
+    }
+
+    async process(vars) {
+        var globs = [
+            normalizePath(path.join(this.sourcePath, 'Dockerfile')),
+            normalizePath(path.join(this.sourcePath, '*.json')),
+            normalizePath(path.join(this.sourcePath, '*.cmd'))
+        ]
+
+        var allResults = [];
+        var entries = await fg(globs, { dot: true });
+        for (let i = 0; i < entries.length; i++) {
+            var _results = await this.applyToFile(entries[i], vars);
+            allResults.push(..._results);
+        }
+
+        return allResults;
+    }
+
+    async applyToFile(filePath, vars) {
+        const replaceInFile = require('replace-in-file');
+
+        var fromKeys = Object.keys(vars).map(key => new RegExp(`#${key}#`, 'g'));
+        var toValues = Object.keys(vars).map(key => vars[key]);
+
+        var fr = await replaceInFile({
+            files: filePath,
+            from: fromKeys,
+            to: toValues
+        });
+
+        return fr.filter(x => x.hasChanged);
+    }
+}
+
 module.exports = {
     Plugin: Plugin,
     CopyTask: CopyTask,
     NpmInstallTask: NpmInstallTask,
-    UpdateConfigTask: UpdateConfigTask
+    UpdateConfigTask: UpdateConfigTask,
+    ReplaceVarsTask: ReplaceVarsTask
 };

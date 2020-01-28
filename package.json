@@ -28,6 +28,7 @@
     "lodash.merge": "^4.6.2",
     "lodash.set": "^4.3.2",
     "normalize-path": "^3.0.0",
+    "replace-in-file": "^5.0.2",
     "terser": "^4.6.3"
   },
   "preferGlobal": true,
