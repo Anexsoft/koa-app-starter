@@ -44,7 +44,7 @@ async function run(options) {
         appname: options.appname,
         appaudience: options.appaudience
     };
-    _replaceVariables(vars, path.join(options.dest, '**'));
+    await _replaceVariables(vars, path.join(options.dest, '**'));
 
     // run npm completely (always set as the last step)
     for (let i = 0; i < plugins.length; i++) {
