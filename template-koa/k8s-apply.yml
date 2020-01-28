@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: #appname#-dpy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: #appname#
+  template:
+    metadata:
+      labels:
+        app: #appname#
+    spec:
+      containers:
+      - name: #appname#
+        # https://dev.azure.com/eagleperu/Juntoz/_wiki/wikis/Juntoz.wiki/101/Kubernetes
+        image: #myregistry#/#appname#:latest
+        ports:
+        - containerPort: #appport#
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "200Mi"
+          requests:
+            cpu: "0.3"
+            memory: "100Mi"
+        # livenessProbe:
+        #   httpGet:
+        #     path: /tools/probe
+        #     port: #appport#
+        #   initialDelaySeconds: 3
+        env:
+          - name: API_PORT
+            value: "#appport#"
+          - name: LOG_LEVEL
+            value: "info"
+          - name: RUN_ENV
+            value: "stg"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: #appname#-svc
+spec:
+  selector:
+    app: #appname#
+  ports:
+    - port: #appport#
+      targetPort: #appport#
