@@ -29,14 +29,6 @@ async function run(options) {
         }
     }
 
-    // run npm completely
-    for (let i = 0; i < plugins.length; i++) {
-        const p = plugins[i];
-        if (p) {
-            await _installTemplateDeps(p.npmInstallTask())
-        }
-    }
-
     // apply config completely
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
@@ -52,13 +44,20 @@ async function run(options) {
         appname: options.appname,
         appaudience: options.appaudience
     };
-
     _replaceVariables(vars, path.join(options.dest, '**'));
+
+    // run npm completely (always set as the last step)
+    for (let i = 0; i < plugins.length; i++) {
+        const p = plugins[i];
+        if (p) {
+            await _installTemplateDeps(p.npmInstallTask())
+        }
+    }
 }
 
 function _mapAppType(appType) {
     switch(appType) {
-        case 'koa-api': 
+        case 'koa-api':
             return 'template-koa';
         default:
             return null;
