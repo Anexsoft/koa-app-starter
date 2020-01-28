@@ -5,6 +5,7 @@ const _merge = require('lodash.merge');
 const _set = require('lodash.set');
 const fg = require('fast-glob');
 const normalizePath = require('normalize-path');
+const replaceInFile = require('replace-in-file');
 
 class Plugin
 {
@@ -202,6 +203,10 @@ class ReplaceVarsTask {
     }
 
     async process(vars) {
+        // convert the variables object into keys and values for faster processing
+        var fromKeys = Object.keys(vars).map(key => new RegExp(`#${key}#`, 'g'));
+        var toValues = Object.keys(vars).map(key => vars[key]);
+
         var globs = [
             normalizePath(path.join(this.sourcePath, 'Dockerfile')),
             normalizePath(path.join(this.sourcePath, '*.json')),
@@ -211,26 +216,22 @@ class ReplaceVarsTask {
         var allResults = [];
         var entries = await fg(globs, { dot: true });
         for (let i = 0; i < entries.length; i++) {
-            var _results = await this.applyToFile(entries[i], vars);
+            var _results = await this.applyToFile(entries[i], fromKeys, toValues);
             allResults.push(..._results);
         }
 
         return allResults;
     }
 
-    async applyToFile(filePath, vars) {
-        const replaceInFile = require('replace-in-file');
-
-        var fromKeys = Object.keys(vars).map(key => new RegExp(`#${key}#`, 'g'));
-        var toValues = Object.keys(vars).map(key => vars[key]);
-
-        var fr = await replaceInFile({
+    async applyToFile(filePath, fromKeys, toValues) {
+        var results = await replaceInFile({
             files: filePath,
             from: fromKeys,
             to: toValues
         });
 
-        return fr.filter(x => x.hasChanged);
+        // return only those that changed
+        return results.filter(x => x.hasChanged);
     }
 }
 
