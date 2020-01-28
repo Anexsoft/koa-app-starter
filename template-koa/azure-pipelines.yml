@@ -1,0 +1,88 @@
+name: $(Year:yyyy).$(Month).$(DayOfMonth).$(BuildID)
+
+resources:
+  repositories:
+  - repository: jztools
+    type: git
+    name: Tools.DevOps
+
+trigger:
+- master
+
+variables:
+- group: Juntoz Docker Registry
+- name: imageName
+  value: #appname#
+- name: loglevel
+  value: info
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: Ubuntu-16.04
+    steps:
+    - script: |
+          echo $(Build.BuildNumber) >> version.txt
+      displayName: Write version to source folder
+    - task: CopyFiles@2
+      displayName: stage version file
+      inputs:
+        contents: version.txt
+        targetFolder: $(build.artifactStagingDirectory)
+    - task: Docker@2
+      displayName: Docker Login to ACR
+      inputs:
+        command: login
+        containerRegistry: $(juntoz-docker-acr-svcnx)
+    - task: Docker@2
+      displayName: Docker Build and Push
+      inputs:
+        command: buildAndPush
+        repository: $(imageName)
+        tags: latest
+    - task: CopyFiles@2
+      displayName: stage deploy files
+      inputs:
+        contents: k8s*.*
+        targetFolder: $(build.artifactStagingDirectory)
+    - task: PublishBuildArtifacts@1
+      displayName: publish output folder as this build artifact
+      inputs:
+        pathtoPublish: $(build.artifactStagingDirectory)
+        artifactName: drop
+- stage: Staging
+  jobs:
+  - deployment: Staging
+    variables:
+    - group: Juntoz Staging
+    - name: kubcluster
+      value: juntoz-kub-api-core-staging
+    - name: envName
+      value: stg
+    pool:
+      vmImage: VS2017-Win2016
+    environment: STG
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: Kubernetes@1
+            displayName: kubectl apply
+            inputs:
+              connectionType: Azure Resource Manager
+              azureSubscriptionEndpoint: Microsoft Azure CSP 1 (27f35131-c5c7-4217-a8f4-dd36ab5263ed)
+              azureResourceGroup: $(juntoz-resource-group-kub)
+              kubernetesCluster: $(kubcluster)
+              command: apply
+              arguments: -f $(Pipeline.Workspace)/drop/k8s-apply.yml
+          # - task: Kubernetes@1
+          #   displayName: kubectl apply
+          #   inputs:
+          #     connectionType: Azure Resource Manager
+          #     azureSubscriptionEndpoint: Microsoft Azure CSP 1 (27f35131-c5c7-4217-a8f4-dd36ab5263ed)
+          #     azureResourceGroup: $(juntoz-resource-group-kub)
+          #     kubernetesCluster: $(kubcluster)
+          #     command: rollout
+          #     arguments: restart deployment/#appname#-dpy

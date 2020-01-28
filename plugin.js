@@ -210,7 +210,8 @@ class ReplaceVarsTask {
         var globs = [
             normalizePath(path.join(this.sourcePath, 'Dockerfile')),
             normalizePath(path.join(this.sourcePath, '*.json')),
-            normalizePath(path.join(this.sourcePath, '*.cmd'))
+            normalizePath(path.join(this.sourcePath, '*.cmd')),
+            normalizePath(path.join(this.sourcePath, '*.yml'))
         ]
 
         var allResults = [];
