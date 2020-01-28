@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const _merge = require('lodash.merge');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
+const koaPackInfo = require('@juntoz/koa-package-info');
 const _initAuthJwt = require('./init-auth-jwt');
 
 async function init(koaApp, moduleEntryPath) {
@@ -81,6 +82,11 @@ function _defaultConfig() {
 function _post(koaApp) {
     koaHealthProbe(koaApp);
     koaApp.log.debug('app-probe: success');
+
+    koaPackInfo(koaApp, {
+        pathToPackageJson: '../package.json'
+    });
+    koaApp.log.debug('app-packinfo: success');
 }
 
 module.exports = init;
