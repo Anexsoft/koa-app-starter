@@ -35,7 +35,7 @@ function _questions(root) {
     return [
         {
             type: 'list',
-            message: 'What type of app do you want (koa-api)?',
+            message: 'What type of app do you want?',
             name: 'apptype',
             default: 'koa-api',
             choices: ['koa-api']
@@ -45,6 +45,12 @@ function _questions(root) {
             message: 'Which port number to open?',
             name: 'appport',
             default: 3000,
+            when: (ans) => ans.apptype == 'koa-api'
+        },
+        {
+            type: 'input',
+            message: 'What audience will this API belong to?',
+            name: 'appaudience',
             when: (ans) => ans.apptype == 'koa-api'
         },
         {
