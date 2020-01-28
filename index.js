@@ -7,11 +7,6 @@ const fs = require('fs-extra');
 
 const run = require('./app');
 
-// command args
-const argv = require('yargs')
-    .help()
-    .argv;
-
 async function doInit() {
     var root = await _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
@@ -40,10 +35,17 @@ function _questions(root) {
     return [
         {
             type: 'list',
-            message: 'What type of app do you want (koa)?',
+            message: 'What type of app do you want (koa-api)?',
             name: 'apptype',
-            default: 'koa',
-            choices: ['koa']
+            default: 'koa-api',
+            choices: ['koa-api']
+        },
+        {
+            type: 'number',
+            message: 'Which port number to open?',
+            name: 'appport',
+            default: 3000,
+            when: (ans) => ans.apptype == 'koa-api'
         },
         {
             type: 'confirm',
@@ -56,6 +58,12 @@ function _questions(root) {
             message: 'Where should the files be copied?',
             name: 'dest',
             default: root
+        },
+        {
+            type: 'input',
+            message: 'What should be the name of your docker image (e.g. juntoz-api-core-client)? This is mandatory.',
+            name: 'appname',
+            validate: (input, ans) => input
         },
     ];
 }
