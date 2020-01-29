@@ -63,36 +63,9 @@ function getPassportVerifier(koaApp) {
 }
 
 function _mwAuthenticate() {
-    var args = [
-        // arg 1
-        strategyName,
-        // arg 2
-        { session: false }
-    ];
-
-    if (global.env == 'dev') {
-        // arg 3
-        args.push(_debugPassportCallback)
-    }
-
-    // call to passport.authenticate returns a koa middleware
-    return passport.authenticate(...args);
-}
-
-async function _debugPassportCallback(err, user, info) {
-    // https://dmitryrogozhny.com/blog/easy-way-to-debug-passport-authentication-in-express
-    if (global.env !== 'dev') {
-        // DO NOT SETUP ON PRODUCTION, only use it for development
-        // EVEN WORSE, when activated the response may be 404 instead of the 401, so it
-        // definitely needs to be avoided in PRODUCTION
-        throw new Error('INVALID CALL TO DEBUG PASSPORT');
-    }
-
-    // when error, err is not null or user is false
-    if (err || !user) {
-        // in this case, it is ok to do console.log because it is for debugging only
-        console.log(`passport-debug-error: ${info.message} ... ${JSON.stringify(info)}`);
-    }
+    // NOTE: call to passport.authenticate returns a koa middleware that is going to be used at execution time to authenticate
+    // the request based on the given strategy and parameters.
+    return passport.authenticate(strategyName, { session: false });
 }
 
 function _mwAuthorize(acceptRoles) {
