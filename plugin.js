@@ -212,7 +212,8 @@ class ReplaceVarsTask {
             normalizePath(path.join(this.sourcePath, '*.json')),
             normalizePath(path.join(this.sourcePath, '*.cmd')),
             normalizePath(path.join(this.sourcePath, '*.yml')),
-            normalizePath(path.join(this.sourcePath, '*.yaml'))        ]
+            normalizePath(path.join(this.sourcePath, '*.yaml')) 
+        ]
 
         var allResults = [];
         var entries = await fg(globs, { dot: true });
