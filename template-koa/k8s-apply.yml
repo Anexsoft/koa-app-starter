@@ -53,7 +53,7 @@ spec:
     - port: #appport#
       targetPort: #appport#
 ---
-apiVersion: getambassador.io/v1
+apiVersion: getambassador.io/v2
 kind:  Mapping
 metadata:
   # ambassador is located in the default namespace

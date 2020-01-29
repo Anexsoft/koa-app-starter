@@ -1,6 +1,6 @@
 {
   "name": "@juntoz/koa-app-starter",
-  "version": "1.2.36",
+  "version": "1.2.37",
   "description": "CLI to start a nodejs web api or application",
   "main": "index.js",
   "scripts": {
