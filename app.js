@@ -50,6 +50,7 @@ async function run(options) {
     var vars = {
         appport: options.appport,
         appname: options.appname,
+        appns: options.appns,
         appaudience: options.appaudience
     };
 

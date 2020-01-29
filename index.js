@@ -35,43 +35,48 @@ function _questions(root) {
     return [
         {
             type: 'list',
-            message: 'What type of app do you want?',
+            message: 'APP: What type should this app be?',
             name: 'apptype',
             default: 'koa-api',
             choices: ['koa-api']
         },
         {
             type: 'number',
-            message: 'Which port number to open?',
+            message: 'NET: Which port should this app listen to?',
             name: 'appport',
             default: 3000,
             when: (ans) => ans.apptype == 'koa-api'
         },
         {
             type: 'input',
-            message: 'What audience will this API belong to?',
+            message: 'AUTH: What audience should this app belong to?',
             name: 'appaudience',
             when: (ans) => ans.apptype == 'koa-api',
             validate: (input, ans) => input !== ''
         },
         {
             type: 'confirm',
-            message: 'Add mssql?',
+            message: 'DB: Does this app need to connect to mssql?',
             name: 'addmssql',
             default: false,
         },
         {
             type: 'input',
-            message: 'Where should the files be copied?',
-            name: 'dest',
-            default: root
-        },
-        {
-            type: 'input',
-            message: 'What should be the name of your docker image (e.g. juntoz-api-core-client)? This is mandatory.',
+            message: 'K8S: What should be the name of your docker image?',
             name: 'appname',
             validate: (input, ans) => input !== ''
         },
+        {
+            type: 'input',
+            message: 'K8S: What should be the k8s namespace for your docker image?',
+            name: 'appns'
+        },     
+        {
+            type: 'input',
+            message: 'FINAL: Where should the files be copied?',
+            name: 'dest',
+            default: root
+        },   
     ];
 }
 

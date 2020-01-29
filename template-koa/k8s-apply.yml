@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: #appname#-dpy
+  namespace: #appns#
 spec:
   replicas: 1
   selector:
@@ -10,13 +11,14 @@ spec:
       app: #appname#
   template:
     metadata:
+      namespace: #appns#
       labels:
         app: #appname#
     spec:
       containers:
       - name: #appname#
         # https://dev.azure.com/eagleperu/Juntoz/_wiki/wikis/Juntoz.wiki/101/Kubernetes
-        image: juntozdockreg.azurecr.io/#appname#:latest
+        image: #mydockerregistry#/#appname#:latest
         ports:
         - containerPort: #appport#
         resources:
@@ -35,18 +37,28 @@ spec:
           - name: API_PORT
             value: "#appport#"
           - name: LOG_LEVEL
-            value: "info"
+            value: info
           - name: RUN_ENV
-            value: "stg"
+            value: stg
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: #appname#-svc
+  namespace: #appns#
 spec:
   selector:
     app: #appname#
-  type: LoadBalancer
   ports:
-    - port: 80
+    - port: #appport#
       targetPort: #appport#
+---
+apiVersion: getambassador.io/v1
+kind:  Mapping
+metadata:
+  # ambassador is located in the default namespace
+  name: #appname#-mp
+spec:
+  prefix: #path#
+  rewrite: ""
+  service: http://#appname#-svc.#appns#:#appport#
