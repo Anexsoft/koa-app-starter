@@ -10,6 +10,13 @@ const run = require('./app');
 async function doInit() {
     var root = await _checkCwdRoot();
 
+    // if we are running thru debugger on the same app, this will
+    // screw up this app, therefore append a dist folder so it will not interfere
+    if (root.indexOf('koa-app-starter') >= 0) {
+        root = path.resolve(root, '_test');
+        console.info('Warning: you are located in the koa-app-starter root folder\n');
+    }
+
     var answers = await inquirer.prompt(_questions(root));
     if (answers.go) {
         answers.dest = root;
@@ -29,13 +36,6 @@ function ns_plus_domain(ns, dom) {
 }
 
 function _questions(root) {
-    // if we are running thru debugger on the same app, this will
-    // screw up this app, therefore append a dist folder so it will not interfere
-    if (root.indexOf('koa-app-starter') >= 0) {
-        root = path.resolve(root, '_test');
-        console.info('Warning: you are located in the koa-app-starter root folder\n');
-    }
-
     var _minLettersAndHyphen = '^[a-z]{2,20}(-[a-z]{2,20})###$';
     var minTwoWordsLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '+'));
     var minOneWordLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '*'));
@@ -114,7 +114,7 @@ function _questions(root) {
             default: false,
             when: async (input, ans) => {
                 var pckjson = path.resolve(root, 'package.json');
-                return !(await fs.exists(pckjson));
+                return await fs.exists(pckjson);
             }
         },
         {
