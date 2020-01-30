@@ -22,7 +22,8 @@ async function run(options) {
 
     // apply config from all plugins
     for (let i = 0; i < plugins.length; i++) {
-        await plugins[i].injectConfig(path.join(options.dest, 'config', 'default.yml'));
+        await plugins[i].injectConfig(path.join(options.dest, 'config', 'default.yml'), 'configfile');
+        await plugins[i].injectConfig(path.join(options.dest, 'config', 'custom-environment-variables.yml'), 'envfile');
     }
 
     // replace variables in all files that were generated
@@ -33,8 +34,6 @@ async function run(options) {
         appaudience: options.appaudience
     };
     await _replaceVariablesInFiles(options.dest, vars);
-
-    // run npm completely (always set as the last step)
 
     // gather all dependencies from all plugins
     var deps = [];
@@ -47,6 +46,7 @@ async function run(options) {
         }
     }
 
+    // run npm completely (always set as the last step)
     await _npmInstall(deps, devDeps);
 }
 

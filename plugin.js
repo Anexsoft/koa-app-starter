@@ -17,19 +17,26 @@ class Plugin
         this._copyTask = new CopyTask();
         this._copyTask.applyConfig(_get(this._pluginCfg, 'copy'));
 
-        // update config
+        // update config file
         const UpdateConfigTask = require('./tasks/UpdateConfigTask');
         this._updateCfgTask = new UpdateConfigTask();
         this._updateCfgTask.applyConfig(_get(this._pluginCfg, 'configfile'));
-        // this._updateCfgTask.applyConfig(_get(this._pluginCfg, 'envfile'));
+
+        // update env file
+        this._updateEnvTask = new UpdateConfigTask();
+        this._updateEnvTask.applyConfig(_get(this._pluginCfg, 'envfile'));
     }
 
     async copyFiles(destPath) {
         return await this._copyTask.execute(this._pluginPath, destPath);
     }
 
-    async injectConfig(destFile) {
-        return await this._updateCfgTask.execute(destFile);
+    async injectConfig(destFile, destType) {
+        if (destType == 'configfile') {
+            return await this._updateCfgTask.execute(destFile);
+        } else if (destType == 'envfile') {
+            return await this._updateEnvTask.execute(destFile);
+        }
     }
 
     async getDependencies() {

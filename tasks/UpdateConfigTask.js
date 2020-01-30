@@ -14,7 +14,7 @@ class UpdateConfigTask {
     }
 
     _hasAnyEntry() {
-        return this.config.length > 0;
+        return Object.keys(this.config).length > 0;
     }
 
     async execute(destFile) {
