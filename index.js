@@ -114,7 +114,7 @@ function _questions(root) {
             default: false,
             when: async (input, ans) => {
                 var pckjson = path.resolve(root, 'package.json');
-                return await fs.exists(pckjson);
+                return !(await fs.exists(pckjson));
             }
         },
         {
