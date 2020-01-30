@@ -36,8 +36,10 @@ function _questions(root) {
     // screw up this app, therefore append a dist folder so it will not interfere
     if (root.indexOf('koa-app-starter') >= 0) {
         root = path.resolve(root, '_test');
-        console.info('Warning: you are located in the koa-app-starter root folder');
+        console.info('Warning: you are located in the koa-app-starter root folder\n');
     }
+
+    var onlyLettersAndHyphen = /^(-?[a-z]+)+/g;
 
     return [
         {
@@ -52,7 +54,7 @@ function _questions(root) {
             message: 'AUTH: What audience should this app belong to?',
             name: 'appaudience',
             when: (ans) => ans.apptype == 'koa-api',
-            validate: (input, ans) => input !== ''
+            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
         },
         {
             type: 'confirm',
@@ -64,28 +66,29 @@ function _questions(root) {
             type: 'input',
             message: 'K8S: What should be the k8s namespace for your docker image?',
             name: 'appns',
-            validate: (input, ans) => input !== '' && /^(-?[a-z]+)+/g.test(input)
-        },         
+            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
+        },
         {
             type: 'input',
-            message: (ans) => `K8S: Complete ${ans.appns} with your app main domain`,
+            message: (ans) => `K8S: What should be the name of your docker image`,
             name: 'appname',
             transformer: (input, ans, opt) => ns_plus_domain(ans.appns, input),
-            validate: (input, ans) => input !== ''
+            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
         },
         {
             type: 'number',
             message: 'NET: Which port should this app listen to?',
             name: 'appport',
             default: 3000,
-            when: (ans) => ans.apptype == 'koa-api'
-        },        
+            when: (ans) => ans.apptype == 'koa-api',
+            validate: (input, ans) => input !== '' && Number.isInteger(input)
+        },
         {
             type: 'input',
             message: 'FINAL: Where should the files be copied?',
             name: 'dest',
             default: root
-        },   
+        },
     ];
 }
 
