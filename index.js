@@ -9,22 +9,19 @@ const run = require('./app');
 
 async function doInit() {
     var root = await _checkCwdRoot();
-    var answers = await inquirer.prompt(_questions(root));
 
-    // expand appname with appns
-    answers.appname = ns_plus_domain(answers.appns, answers.appname);
-    await run(answers);
+    var answers = await inquirer.prompt(_questions(root));
+    if (answers.continueWithoutPkgJson) {
+        answers.dest = root;
+
+        // expand appname with appns
+        answers.appname = ns_plus_domain(answers.appns, answers.appname);
+        await run(answers);
+    }
 }
 
 async function _checkCwdRoot() {
-    var cwd = process.cwd();
-    var pckjson = path.resolve(cwd, 'package.json');
-    var found = await fs.exists(pckjson);
-    if (!found) {
-        console.warn('Warning: you are not currently located in the root of the folder (no package.json was found). It is better to exit and relocate.');
-    }
-
-    return cwd;
+    return process.cwd();
 }
 
 function ns_plus_domain(ns, dom) {
@@ -39,7 +36,10 @@ function _questions(root) {
         console.info('Warning: you are located in the koa-app-starter root folder\n');
     }
 
-    var onlyLettersAndHyphen = /^(-?[a-z]+)+/g;
+    var _minLettersAndHyphen = '^[a-z]{2,20}(-[a-z]{2,20})###$';
+    var minTwoWordsLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '+'));
+    var minOneWordLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '*'));
+    var defaultPort = 3000;
 
     return [
         {
@@ -54,7 +54,13 @@ function _questions(root) {
             message: 'AUTH: What audience should this app belong to?',
             name: 'appaudience',
             when: (ans) => ans.apptype == 'koa-api',
-            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
+            validate: (input, ans) => {
+                if (input !== '' && minTwoWordsLettersAndHyphen.test(input)) {
+                    return true;
+                } else {
+                    return "Only accepts characters and hyphens";
+                }
+            }
         },
         {
             type: 'confirm',
@@ -64,30 +70,52 @@ function _questions(root) {
         },
         {
             type: 'input',
-            message: 'K8S: What should be the k8s namespace for your docker image?',
+            message: 'K8S: What should be the namespace for your docker image?',
             name: 'appns',
-            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
+            validate: (input, ans) => {
+                if (minTwoWordsLettersAndHyphen.test(input)) {
+                    return true;
+                } else {
+                    return "Only accepts characters and hyphens";
+                }
+            }
         },
         {
             type: 'input',
-            message: (ans) => `K8S: What should be the name of your docker image`,
+            message: (ans) => `K8S: What should be the name of your docker image?`,
             name: 'appname',
             transformer: (input, ans, opt) => ns_plus_domain(ans.appns, input),
-            validate: (input, ans) => input !== '' && onlyLettersAndHyphen.test(input)
+            validate: (input, ans) => {
+                if (input !== '' && minOneWordLettersAndHyphen.test(input)) {
+                    return true;
+                } else {
+                    return "Only accepts characters and hyphens";
+                }
+            }
         },
         {
             type: 'number',
             message: 'NET: Which port should this app listen to?',
             name: 'appport',
-            default: 3000,
+            default: defaultPort,
             when: (ans) => ans.apptype == 'koa-api',
-            validate: (input, ans) => input !== '' && Number.isInteger(input)
+            validate: (input, ans) => {
+                if (Number.isInteger(input) && input >= defaultPort) {
+                    return true;
+                } else {
+                    return `Only numbers accepted above ${defaultPort}`;
+                }
+            }
         },
         {
-            type: 'input',
-            message: 'FINAL: Where should the files be copied?',
-            name: 'dest',
-            default: root
+            type: 'confirm',
+            message: 'FINAL: This folder does not contain a package.json file. Do you want to continue?',
+            name: 'continueWithoutPkgJson',
+            default: false,
+            when: async (input, ans) => {
+                var pckjson = path.resolve(root, 'package.json');
+                return !(await fs.exists(pckjson));
+            }
         },
     ];
 }
