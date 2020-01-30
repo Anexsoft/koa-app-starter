@@ -10,6 +10,9 @@ const run = require('./app');
 async function doInit() {
     var root = await _checkCwdRoot();
     var answers = await inquirer.prompt(_questions(root));
+
+    // expand appname with appns
+    answers.appname = ns_plus_domain(answers.appns, answers.appname);
     await run(answers);
 }
 
@@ -22,6 +25,10 @@ async function _checkCwdRoot() {
     }
 
     return cwd;
+}
+
+function ns_plus_domain(ns, dom) {
+    return ns + '-' + dom;
 }
 
 function _questions(root) {
@@ -41,13 +48,6 @@ function _questions(root) {
             choices: ['koa-api']
         },
         {
-            type: 'number',
-            message: 'NET: Which port should this app listen to?',
-            name: 'appport',
-            default: 3000,
-            when: (ans) => ans.apptype == 'koa-api'
-        },
-        {
             type: 'input',
             message: 'AUTH: What audience should this app belong to?',
             name: 'appaudience',
@@ -62,15 +62,24 @@ function _questions(root) {
         },
         {
             type: 'input',
-            message: 'K8S: What should be the name of your docker image?',
+            message: 'K8S: What should be the k8s namespace for your docker image?',
+            name: 'appns',
+            validate: (input, ans) => input !== '' && /^(-?[a-z]+)+/g.test(input)
+        },         
+        {
+            type: 'input',
+            message: (ans) => `K8S: Complete ${ans.appns} with your app main domain`,
             name: 'appname',
+            transformer: (input, ans, opt) => ns_plus_domain(ans.appns, input),
             validate: (input, ans) => input !== ''
         },
         {
-            type: 'input',
-            message: 'K8S: What should be the k8s namespace for your docker image?',
-            name: 'appns'
-        },     
+            type: 'number',
+            message: 'NET: Which port should this app listen to?',
+            name: 'appport',
+            default: 3000,
+            when: (ans) => ans.apptype == 'koa-api'
+        },        
         {
             type: 'input',
             message: 'FINAL: Where should the files be copied?',
