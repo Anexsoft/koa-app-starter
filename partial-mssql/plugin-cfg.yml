@@ -5,15 +5,12 @@ copy:
 
 # add each npm package to install
 npm:
-  # install: either array or object syntax
   install:
   - mssql
 
-# add to config.json
+# add to default.yml
 configfile:
-# path: lodash.set syntax
-- path: connectionObject
-  value: |
+  connectionObject:
     user: <db user>
     password: <db pwd>
     server: <db server>
@@ -23,3 +20,9 @@ configfile:
       min: 100
       max: 500
 
+# add to custom-environment-variables.yml
+envfile:
+  connectionObject:
+    user: DB_USER
+    password: DB_PWD
+    server: DB_SERVER
