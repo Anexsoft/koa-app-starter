@@ -11,7 +11,7 @@ async function doInit() {
     var root = await _checkCwdRoot();
 
     var answers = await inquirer.prompt(_questions(root));
-    if (answers.continueWithoutPkgJson) {
+    if (answers.go) {
         answers.dest = root;
 
         // expand appname with appns
@@ -70,7 +70,7 @@ function _questions(root) {
         },
         {
             type: 'input',
-            message: 'K8S: What should be the namespace for your docker image?',
+            message: 'K8S: What should be the app namespace in kubernetes?',
             name: 'appns',
             validate: (input, ans) => {
                 if (minTwoWordsLettersAndHyphen.test(input)) {
@@ -109,13 +109,20 @@ function _questions(root) {
         },
         {
             type: 'confirm',
-            message: 'FINAL: This folder does not contain a package.json file. Do you want to continue?',
+            message: 'WARN: This folder does not contain a package.json file. Do you want to continue?',
             name: 'continueWithoutPkgJson',
             default: false,
             when: async (input, ans) => {
                 var pckjson = path.resolve(root, 'package.json');
                 return !(await fs.exists(pckjson));
             }
+        },
+        {
+            type: 'confirm',
+            message: 'FINAL: All set up. Do you want to continue?',
+            name: 'go',
+            default: true,
+            when: (ans) => ans.continueWithoutPkgJson !== false
         },
     ];
 }
