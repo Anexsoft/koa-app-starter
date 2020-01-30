@@ -59,19 +59,6 @@ async function _initApi(koaApp, modulePath) {
     koaApp.log.info(`app-api: ${modulePath} success`);
 }
 
-function _defaultConfig() {
-    return {
-        name: null,
-        auth: {
-            jwt: {
-                issuer: null,
-                secretOrKey: null,
-                audience: null
-            }
-        }
-    };
-}
-
 function _post(koaApp) {
     koaHealthProbe(koaApp);
     koaApp.log.debug('app-probe: success');

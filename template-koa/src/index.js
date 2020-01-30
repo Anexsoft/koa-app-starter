@@ -15,10 +15,10 @@ const argv = require('yargs')
     .argv;
 
 // https://github.com/lorenwest/node-config
-// tell to the CONFIG module to load the config file based on the environment that is running 
+// tell to the CONFIG module to load the config file based on the environment that is running
 process.env.NODE_CONFIG_ENV = argv.env;
 // tell to the CONFIG module to load files from this folder
-process.env.NODE_CONFIG_DIR = path.join(__dirname, 'cfg');
+process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config');
 
 // global app
 const Koa = require('koa');
