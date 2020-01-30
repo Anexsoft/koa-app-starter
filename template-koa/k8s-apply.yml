@@ -34,12 +34,12 @@ spec:
         #     port: <appport>
         #   initialDelaySeconds: 3
         env:
-          - name: API_PORT
-            value: "<appport>"
-          - name: LOG_LEVEL
-            value: info
-          - name: RUN_ENV
-            value: stg
+        - name: API_PORT
+          value: "<appport>"
+        - name: LOG_LEVEL
+          value: info
+        - name: RUN_ENV
+          value: stg
 ---
 apiVersion: v1
 kind: Service
