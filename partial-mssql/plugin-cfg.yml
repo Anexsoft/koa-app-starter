@@ -1,27 +1,25 @@
 # configure the copy and minify
 copy:
-    minify:
-        ignore: ['!**/src/service/*']
+  minify:
+    ignore: ['!**/src/service/*']
 
 # add each npm package to install
 npm:
-    # install: either array or object syntax
-    install:
-        - mssql
+  # install: either array or object syntax
+  install:
+  - mssql
 
 # add to config.json
-configjson:
-    # path: lodash.set syntax
-    - path: connectionObject
-      value: |
-        {
-            "user": "<db user>",
-            "password": "<db pwd>",
-            "server": "<db server>",
-            "database": "<db database>",
-            "encrypt": true,
-            "pool": {
-                "min": 100,
-                "max": 500
-            }
-        }
+configfile:
+# path: lodash.set syntax
+- path: connectionObject
+  value: |
+    user: <db user>
+    password: <db pwd>
+    server: <db server>
+    database: <db database>
+    encrypt: true
+    pool:
+      min: 100
+      max: 500
+

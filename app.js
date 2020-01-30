@@ -33,8 +33,7 @@ async function run(options) {
     for (let i = 0; i < plugins.length; i++) {
         const p = plugins[i];
         if (p) {
-            await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.json'));
-            await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'config.local.json'));
+            await _applyConfig(p.updateConfigTask(), path.join(options.dest, 'src', 'cfg', 'default.yml'));
         }
     }
 

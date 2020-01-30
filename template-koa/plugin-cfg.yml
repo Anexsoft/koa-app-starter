@@ -1,4 +1,4 @@
 # configure the copy and minify
 copy:
-    minify:
-        ignore: ['!**/src/api/*']
+  minify:
+    ignore: ['!**/src/api/*']

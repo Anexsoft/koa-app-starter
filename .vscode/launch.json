@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Main",
+            "name": "CLI",
             "program": "${workspaceFolder}/index.js",
             "args": ["init"],
             "outputCapture": "std",
@@ -20,7 +20,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Tm Koa",
+            "name": "Koa",
             "program": "${workspaceFolder}/template-koa/src/index.js",
             "args": ["--port", "3000"],
             "outputCapture": "std",

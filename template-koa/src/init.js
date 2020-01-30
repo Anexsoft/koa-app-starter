@@ -1,10 +1,8 @@
 'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
-const _merge = require('lodash.merge');
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 const koaPackInfo = require('@juntoz/koa-package-info');
+const config = require('config');
 const _initAuthJwt = require('./init-auth-jwt');
 
 async function init(koaApp, moduleEntryPath) {
@@ -22,11 +20,6 @@ async function init(koaApp, moduleEntryPath) {
 }
 
 async function _pre(koaApp) {
-    // load the api config based on environment
-    var configPath = path.join(__dirname, 'cfg', global.env === 'dev' ? 'config.local.json' : 'config.json');
-    var loadedCfg = await fs.readJson(configPath);
-    koaApp.cfg = _merge(_defaultConfig(), loadedCfg);
-
     // set request id
     const xRequestId = require('koa-x-request-id');
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
@@ -44,8 +37,8 @@ async function _pre(koaApp) {
 }
 
 async function _initAuth(koaApp) {
-    if (koaApp.cfg.auth) {
-        await _initAuthJwt(koaApp, koaApp.cfg.auth);
+    if (config.has('auth')) {
+        await _initAuthJwt(koaApp, config.get('auth'));
         koaApp.log.debug('passport-setup: jwt success');
     } else {
         koaApp.log.info('passport-setup: anonymous access');

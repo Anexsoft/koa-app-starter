@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 // command args
 const argv = require('yargs')
     .usage('Usage: $0 --port [listen to port] --module [module entry path] --loglevel [log level] --env [dev or stg or prod]')
@@ -11,6 +13,12 @@ const argv = require('yargs')
     .default('env', 'dev')
     .choices('env', ['dev', 'stg', 'prod'])
     .argv;
+
+// https://github.com/lorenwest/node-config
+// tell to the CONFIG module to load the config file based on the environment that is running 
+process.env.NODE_CONFIG_ENV = argv.env;
+// tell to the CONFIG module to load files from this folder
+process.env.NODE_CONFIG_DIR = path.join(__dirname, 'cfg');
 
 // global app
 const Koa = require('koa');
@@ -25,6 +33,9 @@ var kplmw = KoaPinoLogger({ level: argv.loglevel });
 koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
+
+const config = require('config');
+koaApp.log.info(`index-config: success, app (${config.get('name')})`);
 
 // init application
 const appInit = require('./init');

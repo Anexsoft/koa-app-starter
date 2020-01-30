@@ -2,25 +2,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: #appname#-dpy
-  namespace: #appns#
+  name: <appname>-dpy
+  namespace: <appns>
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: #appname#
+      app: <appname>
   template:
     metadata:
-      namespace: #appns#
+      namespace: <appns>
       labels:
-        app: #appname#
+        app: <appname>
     spec:
       containers:
-      - name: #appname#
+      - name: <appname>
         # https://dev.azure.com/eagleperu/Juntoz/_wiki/wikis/Juntoz.wiki/101/Kubernetes
-        image: #mydockerregistry#/#appname#:latest
+        image: <mydockerregistry>/<appname>:latest
         ports:
-        - containerPort: #appport#
+        - containerPort: <appport>
         resources:
           limits:
             cpu: "0.5"
@@ -31,11 +31,11 @@ spec:
         # livenessProbe:
         #   httpGet:
         #     path: /tools/probe
-        #     port: #appport#
+        #     port: <appport>
         #   initialDelaySeconds: 3
         env:
           - name: API_PORT
-            value: "#appport#"
+            value: "<appport>"
           - name: LOG_LEVEL
             value: info
           - name: RUN_ENV
@@ -44,21 +44,21 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: #appname#-svc
-  namespace: #appns#
+  name: <appname>-svc
+  namespace: <appns>
 spec:
   selector:
-    app: #appname#
+    app: <appname>
   ports:
-    - port: #appport#
-      targetPort: #appport#
+    - port: <appport>
+      targetPort: <appport>
 ---
 apiVersion: getambassador.io/v2
 kind:  Mapping
 metadata:
   # ambassador is located in the default namespace
-  name: #appname#-mp
+  name: <appname>-mp
 spec:
-  prefix: #path#
-  rewrite: ""
-  service: http://#appname#-svc.#appns#:#appport#
+  prefix: <path>
+  rewrite: <rewrite>
+  service: http://<appname>-svc.<appns>:<appport>
