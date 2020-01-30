@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const jsyaml = require('js-yaml');
 const _merge = require('lodash.merge');
+const _get = require('lodash.get');
 const _set = require('lodash.set');
 const fg = require('fast-glob');
 const normalizePath = require('normalize-path');
@@ -17,27 +18,27 @@ class Plugin
         // if the file does not exist, simply assume the default config
         var confpath = path.join(this.pluginPath, 'plugin-cfg.yml');
         if (await fs.exists(confpath)) {
-            this._configData = jsyaml.safeLoad(await fs.readFile(confpath, 'utf-8'));
+            this._pluginCfg = jsyaml.safeLoad(await fs.readFile(confpath, 'utf-8'));
         } else {
-            this._configData = null;
+            this._pluginCfg = null;
         }
     }
 
     copyTask() {
         var ct = new CopyTask(this.pluginPath);
-        ct.merge(this._configData ? this._configData.copy : null);
+        ct.merge(_get(this._pluginCfg, 'copy'));
         return ct;
     }
 
     npmInstallTask() {
         var ni = new NpmInstallTask(this.pluginPath);
-        ni.merge(this._configData ? this._configData.npm : null);
+        ni.merge(_get(this._pluginCfg, 'npm'));
         return ni;
     }
 
     updateConfigTask() {
         var uc = new UpdateConfigTask(this.pluginPath);
-        uc.merge(this._configData ? this._configData.configjson : null);
+        uc.merge(_get(this._pluginCfg, 'configfile'));
         return uc;
     }
 }
@@ -176,14 +177,16 @@ class UpdateConfigTask {
 
     async applyToFile(filePath) {
         if (this.hasAny()) {
-            var fileCfg = await fs.readJson(filePath);
+            var inyaml = fs.readFileSync(filePath, 'utf8');
+            var fileCfg = await jsyaml.safeLoad(inyaml);
 
             for (let i = 0; i < this.config.length; i++) {
                 const elem = this.config[i];
-                _set(fileCfg, elem.path, JSON.parse(elem.value));
+                _set(fileCfg, elem.path, await jsyaml.safeLoad(elem.value));
             }
 
-            await fs.writeJson(filePath, fileCfg, { EOL: '\n', spaces: 4 });
+            var outyaml = jsyaml.safeDump(fileCfg);
+            await fs.writeFile(filePath, outyaml);
         }
     }
 }
@@ -204,7 +207,7 @@ class ReplaceVarsTask {
 
     async process(vars) {
         // convert the variables object into keys and values for faster processing
-        var fromKeys = Object.keys(vars).map(key => new RegExp(`#${key}#`, 'g'));
+        var fromKeys = Object.keys(vars).map(key => new RegExp(`<${key}>`, 'g'));
         var toValues = Object.keys(vars).map(key => vars[key]);
 
         var globs = [
