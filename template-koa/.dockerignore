@@ -5,3 +5,4 @@
 .vscode
 azure-pipelines*.yml
 local-docker*.cmd
+.starter

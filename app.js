@@ -4,6 +4,7 @@ const path = require('path');
 const execSync = require('child_process').execSync;
 const Plugin = require('./Plugin');
 const ReplaceVarsTask = require('./tasks/ReplaceVarsTask');
+const fs = require('fs-extra');
 
 async function run(options) {
     console.log('> Starting');
@@ -48,6 +49,11 @@ async function run(options) {
 
     // run npm completely (always set as the last step)
     await _npmInstall(deps, devDeps);
+
+
+    // write a file with the koa-app-starter version that was lastly used. This way we can track back which one was used and if the app is too old.
+    console.log('> Drop version file');
+    await writeTraceFile(options.dest);
 }
 
 /**
@@ -100,6 +106,18 @@ async function _replaceVariablesInFiles(sourcePath, vars) {
     }
 
     console.log(`> Done updated vars`);
+}
+
+async function writeTraceFile(destPath) {
+    var traceContent =
+    `
+    ## This file was created to trace back which version of @juntoz/koa-app-starter was last updated on this application.
+    ## You can certainly delete it if you want to. It is not used to run the application.
+    koa-app-starter: v${global.appVersion}
+    ran: ${new Date().toISOString()}
+    user: ${require("os").userInfo().username}
+    `;
+    await fs.writeFile(path.join(destPath, '.starterlast'), traceContent);
 }
 
 module.exports = run;
