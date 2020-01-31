@@ -47,13 +47,12 @@ async function run(options) {
         }
     }
 
-    // run npm completely (always set as the last step)
-    await _npmInstall(deps, devDeps);
-
-
     // write a file with the koa-app-starter version that was lastly used. This way we can track back which one was used and if the app is too old.
     console.log('> Drop version file');
     await writeTraceFile(options.dest);
+
+    // run npm completely (always set as the last step)
+    await _npmInstall(deps, devDeps);
 }
 
 /**
