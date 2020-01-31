@@ -33,5 +33,8 @@
     "terser": "^4.6.3"
   },
   "preferGlobal": true,
-  "bin": "./index.js"
+  "bin": {
+    "koa-app-starter": "./index.js"
+  },
+  "devDependencies": {}
 }
