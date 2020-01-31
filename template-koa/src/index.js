@@ -35,7 +35,8 @@ koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
 const config = require('config');
-koaApp.log.info(`index-config: success, app (${config.get('name')})`);
+koaApp.log.debug(`index-config: config sources object`, config.util.getConfigSources());
+koaApp.log.info(`index-config: success, app (${config.get('name')},${global.env})`);
 
 // init application
 const appInit = require('./init');
