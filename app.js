@@ -5,14 +5,15 @@ const execSync = require('child_process').execSync;
 const Plugin = require('./Plugin');
 const ReplaceVarsTask = require('./tasks/ReplaceVarsTask');
 const fs = require('fs-extra');
+const jsyaml = require('js-yaml');
 
 async function run(options) {
     console.log('> Starting');
 
     // get valid plugins only
     var plugins = [
-        options.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
-        options.apptype === 'koa-api' ? new Plugin(path.resolve(_getCliPath(), 'template-koa')) : null
+        options.answers.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
+        options.answers.apptype === 'koa-api' ? new Plugin(path.resolve(_getCliPath(), 'template-koa')) : null
     ].filter(i => i);
 
     // build the folder first with all files from all plugins
@@ -28,13 +29,7 @@ async function run(options) {
     }
 
     // replace variables in all files that were generated
-    var vars = {
-        appport: options.appport,
-        appname: options.appname,
-        appns: options.appns,
-        appaudience: options.appaudience
-    };
-    await _replaceVariablesInFiles(options.dest, vars);
+    await _replaceVariablesInFiles(options.dest, _getVars(options));
 
     // gather all dependencies from all plugins
     var deps = [];
@@ -49,7 +44,7 @@ async function run(options) {
 
     // write a file with the koa-app-starter version that was lastly used. This way we can track back which one was used and if the app is too old.
     console.log('> Drop version file');
-    await writeTraceFile(options.dest);
+    await writeLastTraceFile(options);
 
     // run npm completely (always set as the last step)
     await _npmInstall(deps, devDeps);
@@ -95,6 +90,15 @@ async function _npmInstall(dependencies, devDependencies) {
     });
 }
 
+function _getVars(options) {
+    return {
+        applicationPort: options.answers.appport,
+        applicationName: options.answers.fullappname,
+        applicationNamespace: options.answers.appns,
+        applicationAudience: options.answers.appaudience
+    };
+}
+
 async function _replaceVariablesInFiles(sourcePath, vars) {
     var replaceTask = new ReplaceVarsTask();
     var results = await replaceTask.execute(sourcePath, vars);
@@ -107,16 +111,31 @@ async function _replaceVariablesInFiles(sourcePath, vars) {
     console.log(`> Done updated vars`);
 }
 
-async function writeTraceFile(destPath) {
-    var traceContent =
-    `
-    ## This file was created to trace back which version of @juntoz/koa-app-starter was last updated on this application.
-    ## You can certainly delete it if you want to. It is not used to run the application.
-    koa-app-starter: v${global.appVersion}
-    ran: ${new Date().toISOString()}
-    user: ${require("os").userInfo().username}
+async function writeLastTraceFile(options) {
+    var answers = Object.assign({}, options.answers);
+    
+    // clear some answers that we do need to ask every time
+    delete answers.continueWithoutPkgJson;
+    delete answers.go; 
+
+    var trace = {
+        ts: new Date().toISOString(),
+        user: require("os").userInfo().username,
+        version: options.appVersion,
+        answers: answers
+    };    
+
+    var headerdoc = `
+## This file was created to trace back what is the last version of @juntoz/koa-app-starter that updated this application.
+## and to reload the answers when the starter is ran again.
+## It is safe to delete or change. It is not used to run the application.
     `;
-    await fs.writeFile(path.join(destPath, '.starterlast'), traceContent);
+
+    var ymltxt = 
+        headerdoc + '\n' + 
+        jsyaml.safeDump(trace);
+
+    await fs.writeFile(path.join(options.dest, 'starterlast.yml'), ymltxt);
 }
 
 module.exports = run;

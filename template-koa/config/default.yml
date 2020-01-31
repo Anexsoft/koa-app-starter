@@ -1,6 +1,6 @@
-name: <appname>
+name: <applicationName>
 auth:
   jwt:
     issuer: <issuer>
     secretOrKey: <secretOrKey>
-    audience: <appaudience>
+    audience: <applicationAudience>

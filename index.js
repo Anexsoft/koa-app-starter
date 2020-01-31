@@ -7,8 +7,8 @@ const fs = require('fs-extra');
 
 const run = require('./app');
 
-async function doInit() {
-    var root = await _checkCwdRoot();
+async function doInit(initData) {
+    var root = process.cwd();
 
     // if we are running thru debugger on the same app, this will
     // screw up this app, therefore append a dist folder so it will not interfere
@@ -19,16 +19,13 @@ async function doInit() {
 
     var answers = await inquirer.prompt(_questions(root));
     if (answers.go) {
-        answers.dest = root;
-
-        // expand appname with appns
-        answers.appname = ns_plus_domain(answers.appns, answers.appname);
-        await run(answers);
+        answers.fullappname = ns_plus_domain(answers.appns, answers.appname);
+        await run({
+            appVersion: initData.appVersion,
+            dest: root,
+            answers: answers
+        });
     }
-}
-
-async function _checkCwdRoot() {
-    return process.cwd();
 }
 
 function ns_plus_domain(ns, dom) {
@@ -109,7 +106,7 @@ function _questions(root) {
         },
         {
             type: 'confirm',
-            message: 'WARN: This folder does not contain a package.json file. Do you want to continue?',
+            message: `WARN: This folder ${root} does not contain a package.json file. Do you want to continue?`,
             name: 'continueWithoutPkgJson',
             default: false,
             when: async (input, ans) => {
@@ -131,6 +128,7 @@ function _questions(root) {
     const boxen = require('boxen');
     const { version } = require('./package.json');
     console.log(boxen('KOA-APP-STARTER v' + version, { padding: 1 }));
-    global.appVersion = version;
-    await doInit();
+    await doInit({
+        appVersion: version
+    });
 })();
