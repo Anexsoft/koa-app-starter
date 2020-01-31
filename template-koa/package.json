@@ -12,6 +12,7 @@
     "config": "^3.2.5",
     "fs-extra": "^8.1.0",
     "ip": "^1.1.5",
+    "js-yaml": "^3.13.1",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-passport": "^4.1.3",
