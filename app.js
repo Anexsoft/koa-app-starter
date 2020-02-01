@@ -4,8 +4,6 @@ const path = require('path');
 const execSync = require('child_process').execSync;
 const Plugin = require('./Plugin');
 const ReplaceVarsTask = require('./tasks/ReplaceVarsTask');
-const fs = require('fs-extra');
-const jsyaml = require('js-yaml');
 
 async function run(options) {
     console.log('> Starting');
@@ -41,10 +39,6 @@ async function run(options) {
             devDeps.push(...pdeps.devDependencies);
         }
     }
-
-    // write a file with the koa-app-starter version that was lastly used. This way we can track back which one was used and if the app is too old.
-    console.log('> Drop version file');
-    await writeLastTraceFile(options);
 
     // run npm completely (always set as the last step)
     await _npmInstall(deps, devDeps);
@@ -109,33 +103,6 @@ async function _replaceVariablesInFiles(sourcePath, vars) {
     }
 
     console.log(`> Done updated vars`);
-}
-
-async function writeLastTraceFile(options) {
-    var answers = Object.assign({}, options.answers);
-    
-    // clear some answers that we do need to ask every time
-    delete answers.continueWithoutPkgJson;
-    delete answers.go; 
-
-    var trace = {
-        ts: new Date().toISOString(),
-        user: require("os").userInfo().username,
-        version: options.appVersion,
-        answers: answers
-    };    
-
-    var headerdoc = `
-## This file was created to trace back what is the last version of @juntoz/koa-app-starter that updated this application.
-## and to reload the answers when the starter is ran again.
-## It is safe to delete or change. It is not used to run the application.
-    `;
-
-    var ymltxt = 
-        headerdoc + '\n' + 
-        jsyaml.safeDump(trace);
-
-    await fs.writeFile(path.join(options.dest, 'starterlast.yml'), ymltxt);
 }
 
 module.exports = run;
