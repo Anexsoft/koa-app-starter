@@ -5,6 +5,7 @@
         "node": true
     },
     "rules": {
+        "global-strict": ["error", "always"],
         "indent": ["error", 4],
         "semi": ["error", "always"],
         "space-before-function-paren": ["error", "never"],
