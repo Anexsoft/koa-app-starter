@@ -1,5 +1,3 @@
-'use strict';
-
 const koaHealthProbe = require('@juntoz/koa-health-probe');
 const koaPackInfo = require('@juntoz/koa-package-info');
 const config = require('config');

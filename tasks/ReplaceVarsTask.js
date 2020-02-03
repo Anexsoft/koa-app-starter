@@ -22,7 +22,7 @@ class ReplaceVarsTask {
         var globs = [
             normalizePath(path.join(sourcePath, '**/Dockerfile')),
             normalizePath(path.join(sourcePath, '**/*.{json,cmd,yml,yaml}'))
-        ]
+        ];
 
         var allResults = [];
         var entries = await fg(globs, { dot: true });

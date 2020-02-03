@@ -6,22 +6,22 @@ async function setup(koaApp) {
 
 async function xxx1(ctx, next) {
     ctx.body = AR.ok({
-        id: ctx.params['id'],
-        name: 'My id1 is ' + ctx.params['id']
+        id: ctx.params.id,
+        name: 'My id1 is ' + ctx.params.id
     });
 }
 
 async function xxx2(ctx, next) {
     ctx.body = AR.ok({
-        id: ctx.params['id'],
-        name: 'My id2 is ' + ctx.params['id']
+        id: ctx.params.id,
+        name: 'My id2 is ' + ctx.params.id
     });
 }
 
 async function xxx3(ctx, next) {
     ctx.body = AR.ok({
-        id: ctx.params['id'],
-        name: 'My id3 is ' + ctx.params['id']
+        id: ctx.params.id,
+        name: 'My id3 is ' + ctx.params.id
     });
 }
 
@@ -30,4 +30,4 @@ module.exports = {
     xxx1: xxx1,
     xxx2: xxx2,
     xxx3: xxx3
-}
+};

@@ -1,5 +1,3 @@
-'use strict';
-
 const mssql = require('mssql');
 
 function koaGetMsSql(koaApp, connectionObject, methodName) {

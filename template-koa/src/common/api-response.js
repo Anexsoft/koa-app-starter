@@ -5,8 +5,8 @@ class ApiResponse {
     }
 }
 
-ApiResponse.ok = function (data) {
+ApiResponse.ok = function(data) {
     return new ApiResponse(data);
-}
+};
 
 module.exports = ApiResponse;

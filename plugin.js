@@ -3,8 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const ymlUtil = require('./common/ymlutil');
 
-class Plugin
-{
+class Plugin {
     constructor(pluginPath) {
         this._pluginPath = pluginPath;
     }
@@ -28,14 +27,14 @@ class Plugin
     }
 
     async copyFiles(destPath) {
-        return await this._copyTask.execute(this._pluginPath, destPath);
+        return this._copyTask.execute(this._pluginPath, destPath);
     }
 
     async injectConfig(destFile, destType) {
         if (destType == 'configfile') {
-            return await this._updateCfgTask.execute(destFile);
+            return this._updateCfgTask.execute(destFile);
         } else if (destType == 'envfile') {
-            return await this._updateEnvTask.execute(destFile);
+            return this._updateEnvTask.execute(destFile);
         }
     }
 

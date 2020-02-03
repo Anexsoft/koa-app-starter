@@ -1,5 +1,3 @@
-'use strict';
-
 const path = require('path');
 
 // command args
@@ -35,7 +33,7 @@ koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
 
 const config = require('config');
-koaApp.log.debug(`index-config: config sources object`, config.util.getConfigSources());
+koaApp.log.debug('index-config: config sources object', config.util.getConfigSources());
 koaApp.log.info(`index-config: success, app (${config.get('name')},${global.env})`);
 
 // init application
@@ -46,9 +44,9 @@ koaApp.log.debug('index-app: success');
 // run
 var srv = require('http').createServer(koaApp.callback());
 srv._protocolName = 'http';
-koaApp.log.debug(`index-http: http server created`);
+koaApp.log.debug('index-http: http server created');
 srv.listen(argv.port);
-let fullAddr = `${srv._protocolName}://${require('ip').address()}:${argv.port}`;
+const fullAddr = `${srv._protocolName}://${require('ip').address()}:${argv.port}`;
 koaApp.log.info(`index-start: server listening in ${fullAddr}`);
 
 // cleanup

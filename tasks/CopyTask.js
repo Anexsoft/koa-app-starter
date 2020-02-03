@@ -21,7 +21,7 @@ class CopyTask {
                 defaultExtensions: ['.js'],
                 ignore: [], // array of glob paths to ignore to minify
                 defaultIgnore: []
-            },
+            }
         };
     }
 
@@ -39,20 +39,20 @@ class CopyTask {
     }
 
     async execute(sourcePath, destPath) {
-        let entries = await this._getFilesToCopy(sourcePath);
+        const entries = await this._getFilesToCopy(sourcePath);
         for (let i = 0; i < entries.length; i++) {
-            let srcfile = entries[i];
+            const srcfile = entries[i];
 
             // get the relative path based on the plugin root, so we mimic the same structure
-            let relSrcFile = srcfile.replace(sourcePath, '');
+            const relSrcFile = srcfile.replace(sourcePath, '');
 
-            let destfile = path.join(destPath, relSrcFile);
+            const destfile = path.join(destPath, relSrcFile);
 
             // copy the file to the destination
             await fs.copy(srcfile, destfile, { overwrite: true });
 
             var minResult = null;
-            let shouldMinify = await this._shouldMinify(destfile);
+            const shouldMinify = await this._shouldMinify(destfile);
             if (shouldMinify) {
                 minResult = await this._minifyJs(destfile, destfile);
             }
@@ -60,7 +60,7 @@ class CopyTask {
             if (minResult == null) {
                 console.log(`>> Copied only ${destfile}`);
             } else if (minResult.ok) {
-                console.log(`>> Copied and Minified ${ destfile }`);
+                console.log(`>> Copied and Minified ${destfile}`);
             } else {
                 console.log(`>> Copied ${destfile} but with error while minifying (${minResult.reason}): ${JSON.stringify(minResult.error)}`);
             }
@@ -86,7 +86,7 @@ class CopyTask {
         if (yes) {
             // verify if file is not in the ignore list
             var nglobin = normalizePath(filePath);
-            let entries = await fg(nglobin, { dot: true, ignore: this.config.minify.finalIgnore });
+            const entries = await fg(nglobin, { dot: true, ignore: this.config.minify.finalIgnore });
             yes = entries.length > 0;
         }
 
@@ -94,7 +94,7 @@ class CopyTask {
     }
 
     async _minifyJs(inPath, outPath) {
-        var inContent = await fs.readFile(inPath, "utf8");
+        var inContent = await fs.readFile(inPath, 'utf8');
 
         var mincode = {};
         mincode[path.basename(inPath)] = inContent;
@@ -123,7 +123,6 @@ class CopyTask {
             ok: true
         };
     }
-
 }
 
 module.exports = CopyTask;

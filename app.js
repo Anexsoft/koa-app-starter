@@ -1,5 +1,3 @@
-'use strict';
-
 const path = require('path');
 const execSync = require('child_process').execSync;
 const Plugin = require('./Plugin');
@@ -67,7 +65,7 @@ async function _npmInstall(dependencies, devDependencies) {
     // each package (without the version), we will always get the latest version of each library.
     [
         { list: dependencies, args: '--save' },
-        { list: devDependencies, args: '--save-dev' },
+        { list: devDependencies, args: '--save-dev' }
     ].forEach(elem => {
         for (let i = 0; i < elem.list.length; i++) {
             // set @latest to always force the latest option
@@ -102,7 +100,7 @@ async function _replaceVariablesInFiles(sourcePath, vars) {
         console.log(`>> Vars found and updated in file ${results[i].file}`);
     }
 
-    console.log(`> Done updated vars`);
+    console.log('> Done updated vars');
 }
 
 module.exports = run;

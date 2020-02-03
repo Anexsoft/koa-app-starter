@@ -1,5 +1,3 @@
-'use strict';
-
 const koaMsSql = require('../common/koa-get-mssql');
 
 function setup(koaApp, config) {

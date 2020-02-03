@@ -8,7 +8,7 @@ const jsyaml = require('js-yaml');
 
 const run = require('./app');
 
-var starterOutputPath = null; 
+var starterOutputPath = null;
 
 async function doInit(initData) {
     var root = process.cwd();
@@ -24,13 +24,13 @@ async function doInit(initData) {
 
     var lastAnswers = await loadYamlToJson(path.join(starterOutputPath, 'answers.yml'));
     if (!lastAnswers) {
-        console.debug(`Note: No answers file found.`);
+        console.debug('Note: No answers file found.');
     }
 
     console.log('\n');
     var answers = await inquirer.prompt(_questions(root, lastAnswers));
     if (answers.go) {
-        answers.fullappname = ns_plus_domain(answers.appns, answers.appname);
+        answers.fullappname = namespaceAndDomain(answers.appns, answers.appname);
 
         // save the current runtime
         await saveRuntime(initData);
@@ -40,14 +40,14 @@ async function doInit(initData) {
 
         // execute
         await run({
-            
+
             dest: root,
             answers: answers
         });
     }
 }
 
-function ns_plus_domain(ns, dom) {
+function namespaceAndDomain(ns, dom) {
     return ns + '-' + dom;
 }
 
@@ -58,7 +58,7 @@ function _questions(root, lastAnswers) {
     var _minLettersAndHyphen = '^[a-z]{2,20}(-[a-z]{2,20})###$';
     var minTwoWordsLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '+'));
     var minOneWordLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '*'));
-    
+
     var defaultPort = 3000;
 
     return [
@@ -79,7 +79,7 @@ function _questions(root, lastAnswers) {
                 if (input !== '' && minTwoWordsLettersAndHyphen.test(input)) {
                     return true;
                 } else {
-                    return "Only accepts characters and hyphens";
+                    return 'Only accepts characters and hyphens';
                 }
             }
         },
@@ -87,7 +87,7 @@ function _questions(root, lastAnswers) {
             type: 'confirm',
             message: 'DB: Does this app need to connect to mssql?',
             name: 'addmssql',
-            default: lastAnswers.addmssql || false,
+            default: lastAnswers.addmssql || false
         },
         {
             type: 'input',
@@ -98,21 +98,21 @@ function _questions(root, lastAnswers) {
                 if (minTwoWordsLettersAndHyphen.test(input)) {
                     return true;
                 } else {
-                    return "Only accepts characters and hyphens";
+                    return 'Only accepts characters and hyphens';
                 }
             }
         },
         {
             type: 'input',
-            message: (ans) => `K8S: What should be the name of your docker image?`,
+            message: (ans) => 'K8S: What should be the name of your docker image?',
             name: 'appname',
             default: lastAnswers.appname || null,
-            transformer: (input, ans, opt) => ns_plus_domain(ans.appns, input),
+            transformer: (input, ans, opt) => namespaceAndDomain(ans.appns, input),
             validate: (input, ans) => {
                 if (input !== '' && minOneWordLettersAndHyphen.test(input)) {
                     return true;
                 } else {
-                    return "Only accepts characters and hyphens";
+                    return 'Only accepts characters and hyphens';
                 }
             }
         },
@@ -135,7 +135,7 @@ function _questions(root, lastAnswers) {
             message: `WARN: This folder ${root} does not contain a package.json file. Do you want to continue?`,
             name: 'continueWithoutPkgJson',
             default: false,
-            when: async (input, ans) => {
+            when: async(input, ans) => {
                 var pckjson = path.resolve(root, 'package.json');
                 return !(await fs.exists(pckjson));
             }
@@ -146,7 +146,7 @@ function _questions(root, lastAnswers) {
             name: 'go',
             default: true,
             when: (ans) => ans.continueWithoutPkgJson !== false
-        },
+        }
     ];
 }
 
@@ -158,8 +158,8 @@ async function saveRuntime(initData) {
 ## It is safe to delete. It is not mandatory to have it to run the starter.
     `;
 
-    var ymltxt = 
-        headerdoc + '\n' + 
+    var ymltxt =
+        headerdoc + '\n' +
         jsyaml.safeDump(initData);
 
     await saveYaml(path.join(starterOutputPath, 'last.yml'), ymltxt);
@@ -167,18 +167,18 @@ async function saveRuntime(initData) {
 
 async function saveAnswers(answers) {
     var toSave = Object.assign({}, answers);
-    
+
     // clear some answers that we do need to ask every time
     delete toSave.continueWithoutPkgJson;
-    delete toSave.go; 
+    delete toSave.go;
 
     var headerdoc = `
 ## This file was created to store the last answers that were put so we can reuse them when a new version needs to be updated.
 ## It is safe to delete. It is not mandatory to have it to run the starter.
     `;
 
-    var ymltxt = 
-        headerdoc + '\n' + 
+    var ymltxt =
+        headerdoc + '\n' +
         jsyaml.safeDump(toSave);
 
     await saveYaml(path.join(starterOutputPath, 'answers.yml'), ymltxt);
@@ -198,12 +198,12 @@ async function saveYaml(destFile, yamlContent) {
     await fs.writeFile(destFile, yamlContent);
 }
 
-(async () => {
+(async() => {
     const boxen = require('boxen');
     const { version } = require('./package.json');
     console.log(boxen('KOA-APP-STARTER v' + version, { padding: 1 }));
     await doInit({
         appVersion: version,
-        user: require("os").userInfo().username,
+        user: require('os').userInfo().username
     });
 })();

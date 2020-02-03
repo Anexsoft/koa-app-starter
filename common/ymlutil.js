@@ -18,4 +18,4 @@ async function writeYaml(content, destFile) {
 module.exports = {
     readYaml: readYaml,
     writeYaml: writeYaml
-}
+};

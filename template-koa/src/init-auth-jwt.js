@@ -9,18 +9,6 @@ async function initAuthJwt(koaApp, authCfg) {
     if (!authCfg.jwt) {
         throw new Error('jwt is the only passport method available');
     }
-/*
-    if (!authCfg.jwt.issuer) {
-        throw new Error('jwt.issuer is mandatory');
-    }
-
-    if (!authCfg.jwt.secretOrKey) {
-        throw new Error('jwt.secretOrKey is mandatory');
-    }
-
-    if (!authCfg.jwt.audience) {
-        throw new Error('jwt.audience is mandatory');
-    }*/
 
     koaApp.use(passport.initialize());
     koaApp.log.debug('passport-setup: passport init success');
@@ -73,7 +61,7 @@ function _mwAuthorize(acceptRoles) {
     acceptRoles = typeof acceptRoles === 'string' && acceptRoles ? [acceptRoles] : acceptRoles || [];
 
     // return the middleware
-    return async (ctx, next) => {
+    return async(ctx, next) => {
         if (acceptRoles.length > 0 && ctx.req.user && ctx.req.user.roles) {
             var matched = _intersect(ctx.req.user.roles, acceptRoles);
             if (matched.length === 0) {

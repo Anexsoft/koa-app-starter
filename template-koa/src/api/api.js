@@ -1,5 +1,3 @@
-'use strict';
-
 const KoaRouter = require('koa-router');
 const apiImpl = require('./api-impl');
 
