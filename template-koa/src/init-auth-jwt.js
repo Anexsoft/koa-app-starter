@@ -17,8 +17,14 @@ async function initAuthJwt(koaApp, authCfg) {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
         issuer: authCfg.jwt.issuer,
         secretOrKey: authCfg.jwt.secretOrKey,
-        audience: authCfg.jwt.audience
+        audience: authCfg.jwt.audience,
+        algorithms: ['RS256'] // limit to this algorithm that requires public and private key
     };
+
+    if (global.env == 'dev') {
+        // only in the case of development, we will accept symmetric key algorithms.
+        jwtOptions.algorithms.push('HS256');
+    }
 
     passport.use(strategyName, new JwtStrategy(jwtOptions, getPassportVerifier(koaApp)));
 
