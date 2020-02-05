@@ -26,7 +26,10 @@ async function initAuthJwt(koaApp, authCfg) {
         jwtOptions.algorithms.push('HS256');
     }
 
+    koaApp.log.trace(`passport-setup: strategy ${strategyName} with options ${JSON.stringify(jwtOptions)}`);
+
     passport.use(strategyName, new JwtStrategy(jwtOptions, getPassportVerifier(koaApp)));
+    koaApp.log.debug(`passport-setup: strategy ${strategyName} configured`);
 
     // create passport middleware getters
     koaApp.pptMW = {

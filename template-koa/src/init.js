@@ -37,9 +37,8 @@ async function _pre(koaApp) {
 async function _initAuth(koaApp) {
     if (config.has('auth')) {
         await _initAuthJwt(koaApp, config.get('auth'));
-        koaApp.log.debug('passport-setup: jwt success');
     } else {
-        koaApp.log.info('passport-setup: anonymous access');
+        koaApp.log.warn('passport-setup: anonymous access');
     }
 }
 
