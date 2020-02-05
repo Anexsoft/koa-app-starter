@@ -1,0 +1,13 @@
+class AppError extends Error {
+    constructor(errorCode, message, statusCode) {
+        super(message);
+
+        // Ensure the name of this error is the same as the class name
+        this.name = this.constructor.name;
+
+        this.errorCode = errorCode;
+        this.statusCode = statusCode;
+    }
+}
+
+module.exports = AppError;
