@@ -14,14 +14,14 @@ async function xxx1(ctx, next) {
 async function xxx2(ctx, next) {
     ctx.body = AR.ok({
         id: ctx.params.id,
-        name: 'My id2 is ' + ctx.params.id
+        name: 'Protected ' + ctx.params.id
     });
 }
 
 async function xxx3(ctx, next) {
     ctx.body = AR.ok({
         id: ctx.params.id,
-        name: 'My id3 is ' + ctx.params.id
+        name: 'Protected and Role ' + ctx.params.id
     });
 }
 
