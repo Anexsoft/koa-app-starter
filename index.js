@@ -30,6 +30,7 @@ async function doInit(initData) {
     console.log('\n');
     var answers = await inquirer.prompt(_questions(root, lastAnswers));
     if (answers.go) {
+        // complete the appname with the namespace
         answers.fullappname = namespaceAndDomain(answers.appns, answers.appname);
 
         // save the current runtime
@@ -40,7 +41,6 @@ async function doInit(initData) {
 
         // execute
         await run({
-
             dest: root,
             answers: answers
         });
@@ -58,6 +58,7 @@ function _questions(root, lastAnswers) {
     var _minLettersAndHyphen = '^[a-z]{2,20}(-[a-z]{2,20})###$';
     var minTwoWordsLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '+'));
     var minOneWordLettersAndHyphen = new RegExp(_minLettersAndHyphen.replace('###', '*'));
+    var xheader = new RegExp('^X-[A-Z]{2,20}(-[A-Z]{2,20})+');
 
     var defaultPort = 3000;
 
@@ -77,6 +78,19 @@ function _questions(root, lastAnswers) {
             when: (ans) => ans.apptype == 'koa-api',
             validate: (input, ans) => {
                 if (input !== '' && minTwoWordsLettersAndHyphen.test(input)) {
+                    return true;
+                } else {
+                    return 'Only accepts characters and hyphens';
+                }
+            }
+        },
+        {
+            type: 'input',
+            message: 'HTTP: If you need to enforce an http header, what would be the name (always start with "X-")?. If not, leave empty.',
+            name: 'requireheadername',
+            default: lastAnswers.requireheadername,
+            validate: (input, ans) => {
+                if (input == null || input === '' || xheader.test(input)) {
                     return true;
                 } else {
                     return 'Only accepts characters and hyphens';

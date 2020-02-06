@@ -2,6 +2,7 @@ const koaHealthProbe = require('@juntoz/koa-health-probe');
 const koaPackInfo = require('@juntoz/koa-package-info');
 const config = require('config');
 const _initAuthJwt = require('./init-auth-jwt');
+const koaRequireHeader = require('@juntoz/koa-require-header');
 
 async function init(koaApp, moduleEntryPath) {
     // pre-processing
@@ -35,6 +36,19 @@ async function _pre(koaApp) {
 }
 
 async function _initAuth(koaApp) {
+    // require a header and store in ctx.state
+    if (config.has('requireHeader.headerName')) {
+        var requireHeaderName = config.get('requireHeader.headerName');
+        if (requireHeaderName) {
+            koaApp.use(koaRequireHeader({
+                headerName: requireHeaderName
+            }));
+            koaApp.log.debug('app-require-header: success');
+        } else {
+            koaApp.log.debug('app-require-header: deactivated');
+        }
+    }
+
     if (config.has('auth')) {
         await _initAuthJwt(koaApp, config.get('auth'));
     } else {

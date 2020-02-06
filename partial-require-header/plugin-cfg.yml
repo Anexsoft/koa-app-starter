@@ -1,0 +1,3 @@
+configfile:
+  requireHeader:
+    headerName: <requireHeaderName>

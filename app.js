@@ -9,6 +9,7 @@ async function run(options) {
     // get valid plugins only
     var plugins = [
         options.answers.addmssql ? new Plugin(path.resolve(_getCliPath(), 'partial-mssql')) : null,
+        options.answers.requireheadername ? new Plugin(path.resolve(_getCliPath(), 'partial-require-header')) : null,
         options.answers.apptype === 'koa-api' ? new Plugin(path.resolve(_getCliPath(), 'template-koa')) : null
     ].filter(i => i);
 
@@ -87,7 +88,8 @@ function _getVars(options) {
         applicationPort: options.answers.appport,
         applicationName: options.answers.fullappname,
         applicationNamespace: options.answers.appns,
-        applicationAudience: options.answers.appaudience
+        applicationAudience: options.answers.appaudience,
+        requireHeaderName: options.answers.requireheadername
     };
 }
 
