@@ -8,6 +8,10 @@ class AppError extends Error {
         this.errorCode = errorCode;
         this.statusCode = statusCode;
     }
+
+    toString() {
+        return `${this.errorCode || this.name}:${this.message}` + (this.statusCode ? ':' + this.statusCode : '');
+    }
 }
 
 module.exports = AppError;
