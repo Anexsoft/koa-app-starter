@@ -219,6 +219,7 @@ async function saveYaml(destFile, yamlContent) {
 
     var cmdArgs = process.argv.slice(2);
     if (cmdArgs.length && cmdArgs[0] == '--version') {
+        // version was already shown, so just exit
         return;
     }
 
