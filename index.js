@@ -216,6 +216,12 @@ async function saveYaml(destFile, yamlContent) {
     const boxen = require('boxen');
     const { version } = require('./package.json');
     console.log(boxen('KOA-APP-STARTER v' + version, { padding: 1 }));
+
+    var cmdArgs = process.argv.slice(2);
+    if (cmdArgs.length && cmdArgs[0] == '--version') {
+        return;
+    }
+
     await doInit({
         appVersion: version,
         user: require('os').userInfo().username
