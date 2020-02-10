@@ -9,6 +9,7 @@
         "indent": ["error", 4],
         "semi": ["error", "always"],
         "space-before-function-paren": ["error", "never"],
-        "eqeqeq": ["off"]
+        "eqeqeq": ["off"],
+        "no-return-await": ["off"]
     }
 }
