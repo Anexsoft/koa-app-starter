@@ -23,11 +23,11 @@ spec:
         - containerPort: <applicationPort>
         resources:
           limits:
-            cpu: "0.5"
+            cpu: "0.3"
             memory: "200Mi"
           requests:
-            cpu: "0.3"
-            memory: "100Mi"
+            cpu: "0.1"
+            memory: "50Mi"
         # livenessProbe:
         #   httpGet:
         #     path: /tools/probe
