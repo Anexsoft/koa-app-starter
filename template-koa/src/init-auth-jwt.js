@@ -18,13 +18,9 @@ async function initAuthJwt(koaApp, authCfg) {
         issuer: authCfg.jwt.issuer,
         secretOrKey: authCfg.jwt.secretOrKey,
         audience: authCfg.jwt.audience,
-        algorithms: ['RS256'] // limit to this algorithm that requires public and private key
+        // NOTE: usually we should limit to RS256. Yet certain apis may require other algorithms, so with this setting they can decide.
+        algorithms: authCfg.jwt.algorithms || ['RS256']
     };
-
-    if (global.env == 'dev') {
-        // only in the case of development, we will accept symmetric key algorithms.
-        jwtOptions.algorithms.push('HS256');
-    }
 
     koaApp.log.trace(`passport-setup: strategy ${strategyName} with options ${JSON.stringify(jwtOptions)}`);
 
