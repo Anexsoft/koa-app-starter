@@ -1,3 +1,5 @@
+// NOTE: If this file is moved, verify the links to this file (especially in the partials).
+
 class AppError extends Error {
     constructor(errorCode, message, statusCode) {
         super(message);

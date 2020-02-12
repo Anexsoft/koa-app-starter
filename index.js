@@ -104,6 +104,12 @@ function _questions(root, lastAnswers) {
             default: lastAnswers.addmssql || false
         },
         {
+            type: 'confirm',
+            message: 'CDB: Does this app need to connect to cosmosdb?',
+            name: 'addcdb',
+            default: lastAnswers.addcdb || false
+        },
+        {
             type: 'input',
             message: 'K8S: What should be the app namespace in kubernetes?',
             name: 'appns',

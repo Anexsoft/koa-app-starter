@@ -1,0 +1,23 @@
+copy:
+  minify:
+    ignore: ['!**/src/service/*']
+
+npm:
+  install:
+  - '@azure/cosmos'
+
+configfile:
+  cosmos:
+    db:
+      cnt:
+        host: <cdb_host>
+        authKey: <cdb_authkey>
+        dbId: <cdb_dbid>
+        cntId: <cdb_cntid>
+
+envfile:
+  cosmos:
+    db:
+      cnt:
+        host: CDB_HOST
+        authKey: CDB_AUTHKEY

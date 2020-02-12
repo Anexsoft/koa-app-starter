@@ -11,10 +11,10 @@ npm:
 # add to default.yml
 configfile:
   connectionObject:
-    user: <db user>
-    password: <db pwd>
-    server: <db server>
-    database: <db database>
+    server: <db_server>
+    user: <db_user>
+    password: <db_pwd>
+    database: <db_database>
     encrypt: true
     pool:
       min: 100
@@ -23,6 +23,6 @@ configfile:
 # add to custom-environment-variables.yml
 envfile:
   connectionObject:
+    server: DB_SERVER
     user: DB_USER
     password: DB_PWD
-    server: DB_SERVER
