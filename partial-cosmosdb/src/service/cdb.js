@@ -1,6 +1,6 @@
 const config = require('config');
-const dateutils = require('../common/date-utils');
 const cosmosUtil = require('../common/cosmos-util');
+const JuntozSchema = require('@juntoz/joi-schema');
 
 var dbId = null;
 var cntId = null;
@@ -24,24 +24,28 @@ async function xxxquery1(pkey, field) {
     return result.resources.length > 0;
 }
 
-async function xxxupdate(session, obj) {
-    obj.modifiedBy = session.sub;
-    obj.updatedOn = dateutils.utcNow();
-
-    return await cosmosUtil.update(cnt, obj.siteId, obj);
-}
-
 async function xxxcreate(session, pkey, obj) {
-    obj.id = 123;
+    obj.id = JuntozSchema.utils.uuid();
     obj.createdBy = session.sub;
-    obj.createdOn = dateutils.utcNow();
+    obj.createdOn = JuntozSchema.utils.utcNow();
+
+    await JuntozSchema.User.validateAsync(obj);
 
     return await cosmosUtil.create(cnt, pkey, obj);
+}
+
+async function xxxupdate(session, obj) {
+    obj.modifiedBy = session.sub;
+    obj.updatedOn = JuntozSchema.utils.utcNow();
+
+    await JuntozSchema.User.validateAsync(obj);
+
+    return await cosmosUtil.update(cnt, obj.siteId, obj);
 }
 
 module.exports = {
     setup,
     xxxquery1,
-    xxxupdate,
-    xxxcreate
+    xxxcreate,
+    xxxupdate
 };
