@@ -27,7 +27,7 @@ async function xxxquery1(pkey, field) {
 
 async function _validateSchema(obj) {
     try {
-        return JuntozSchema.User.validateAsync(obj);
+        return await JuntozSchema.User.validateAsync(obj);
     } catch (error) {
         if (error.name == 'ValidationError' && error.isJoi) {
             throw new AppError('ERR_VALIDATION', error.message);
