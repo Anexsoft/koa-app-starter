@@ -1,6 +1,7 @@
 const config = require('config');
 const cosmosUtil = require('../common/cosmos-util');
 const JuntozSchema = require('@juntoz/joi-schema');
+const AppError = require('../common/AppError');
 
 var dbId = null;
 var cntId = null;
@@ -24,12 +25,24 @@ async function xxxquery1(pkey, field) {
     return result.resources.length > 0;
 }
 
+async function _validateSchema(obj) {
+    try {
+        return JuntozSchema.User.validateAsync(obj);
+    } catch (error) {
+        if (error.name == 'ValidationError' && error.isJoi) {
+            throw new AppError('ERR_VALIDATION', error.message);
+        } else {
+            throw error;
+        }
+    }
+}
+
 async function xxxcreate(session, pkey, obj) {
     obj.id = JuntozSchema.utils.uuid();
     obj.createdBy = session.sub;
     obj.createdOn = JuntozSchema.utils.utcNow();
 
-    await JuntozSchema.User.validateAsync(obj);
+    obj = await _validateSchema(obj);
 
     return await cosmosUtil.create(cnt, pkey, obj);
 }
@@ -38,7 +51,7 @@ async function xxxupdate(session, obj) {
     obj.modifiedBy = session.sub;
     obj.updatedOn = JuntozSchema.utils.utcNow();
 
-    await JuntozSchema.User.validateAsync(obj);
+    obj = await _validateSchema(obj);
 
     return await cosmosUtil.update(cnt, obj.siteId, obj);
 }
