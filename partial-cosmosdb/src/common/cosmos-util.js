@@ -6,9 +6,12 @@ function queryOptions(pkey, options) {
     // as a workaround we can set the header.
     options = options || {};
     options.initialHeaders = options.initialHeaders || {};
-    Object.assign(options.initialHeaders, {
-        'x-ms-documentdb-partitionkey': `["${pkey}"]`
-    });
+
+    if (pkey) {
+        Object.assign(options.initialHeaders, {
+            'x-ms-documentdb-partitionkey': `["${pkey}"]`
+        });
+    }
 
     return options;
 }
