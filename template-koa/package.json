@@ -6,7 +6,7 @@
   "author": "Juntoz.com",
   "license": "MIT",
   "dependencies": {
-    "@juntoz/joi-schema": "^0.1.1",
+    "@juntoz/joi-schema": "^0.1.12",
     "@juntoz/koa-health-probe": "^1.0.6",
     "@juntoz/koa-last-request": "^1.0.3",
     "@juntoz/koa-package-info": "^1.0.2",
