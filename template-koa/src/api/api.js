@@ -14,11 +14,13 @@ function _setupRoutes(koaApp) {
     // TODO: setup routes
     koaRouter
         // unprotected endpoint
-        .get('/xxx/:id', apiImpl.xxx1)
-        // protected endpoint with token
-        .get('/xxx2/:id', koaApp.pptMW.getAuthenticate(), apiImpl.xxx2)
+        .get('/free/:id', apiImpl.time)
+        // protected endpoint with token (could be client_credentials or sub-based)
+        .get('/token/:id', koaApp.pptMW.getAuthenticate(), apiImpl.time)
         // protected endpoint with token and roles
-        .get('/xxx3/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRoles(['admin']), apiImpl.xxx3);
+        .get('/roles/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRoles(['admin']), apiImpl.time)
+        // protected endpoint with token and sub (you can add roles if needed too)
+        .get('/sub/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getRequiresSub(), apiImpl.time);
 
     koaApp
         .use(koaRouter.routes())

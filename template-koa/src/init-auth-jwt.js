@@ -30,6 +30,7 @@ async function initAuthJwt(koaApp, authCfg) {
     // create passport middleware getters
     koaApp.pptMW = {
         getAuthenticate: _mwAuthenticate,
+        getRequiresSub: _mwRequiresSub,
         getAuthorizeRoles: _mwAuthorize
     };
 }
@@ -63,23 +64,46 @@ function _mwAuthenticate() {
 
 function _mwAuthorize(acceptRoles) {
     // always end in an array
-    acceptRoles = typeof acceptRoles === 'string' && acceptRoles ? [acceptRoles] : acceptRoles || [];
+    acceptRoles = typeof acceptRoles === 'string' && acceptRoles ? [acceptRoles] : (acceptRoles || []);
+
+    if (!acceptRoles.length) {
+        throw new Error('acceptRoles is required');
+    }
 
     // return the middleware
     return async(ctx, next) => {
-        if (acceptRoles.length > 0 && ctx.req.user && ctx.req.user.roles) {
-            var matched = _intersect(ctx.req.user.roles, acceptRoles);
-            if (matched.length === 0) {
-                ctx.log.error('passport-auth: user unauthorized', { user: ctx.req.user, expected: acceptRoles });
-                ctx.throw(401, 'passport-auth: user unauthorized');
-            } else {
-                ctx.log.debug('passport-auth: user authorized', { user: ctx.req.user, expected: acceptRoles });
-            }
+        // this middleware depends that passport has authenticated and wrote ctx.state.user
+        if (!ctx.state.user) {
+            ctx.throw(401, 'unauthorized by user missing');
         }
 
-        // if no roles are needed, just bypass
+        if (!ctx.state.user.roles) {
+            ctx.throw(401, 'unauthorized by roles missing');
+        }
+
+        var matched = _intersect(ctx.state.user.roles, acceptRoles);
+        if (matched.length === 0) {
+            ctx.throw(401, 'unauthorized by roles mismatch');
+        }
+
+        ctx.log.debug('passport-auth: authorized', { user: ctx.state.user, expected: acceptRoles });
         await next();
     };
-};
+}
+
+function _mwRequiresSub() {
+    return async(ctx, next) => {
+        if (!ctx.state.user) {
+            ctx.throw(401, 'unauthorized by user missing');
+        }
+
+        if (!ctx.state.user.sub) {
+            ctx.throw(401, 'unauthorized by sub missing');
+        }
+
+        ctx.log.debug('passport-sub: authorized', { sub: ctx.state.user.sub });
+        await next();
+    };
+}
 
 module.exports = initAuthJwt;

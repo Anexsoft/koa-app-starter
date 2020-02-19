@@ -16,33 +16,12 @@ function _handleAppErrorOrThrow(ctx, error) {
     }
 }
 
-async function xxx1(ctx, next) {
+async function time(ctx, next) {
     try {
         ctx.body = AR.ok({
             id: ctx.params.id,
-            name: 'My id1 is ' + ctx.params.id
-        });
-    } catch (error) {
-        _handleAppErrorOrThrow(ctx, error);
-    }
-}
-
-async function xxx2(ctx, next) {
-    try {
-        ctx.body = AR.ok({
-            id: ctx.params.id,
-            name: 'Protected ' + ctx.params.id
-        });
-    } catch (error) {
-        _handleAppErrorOrThrow(ctx, error);
-    }
-}
-
-async function xxx3(ctx, next) {
-    try {
-        ctx.body = AR.ok({
-            id: ctx.params.id,
-            name: 'Protected and Role ' + ctx.params.id
+            name: new Date(),
+            route: ctx._matchedRoute
         });
     } catch (error) {
         _handleAppErrorOrThrow(ctx, error);
@@ -50,8 +29,6 @@ async function xxx3(ctx, next) {
 }
 
 module.exports = {
-    setup: setup,
-    xxx1: xxx1,
-    xxx2: xxx2,
-    xxx3: xxx3
+    setup,
+    time
 };
