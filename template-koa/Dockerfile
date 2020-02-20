@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # install all dependencies
-RUN npm install
+RUN npm ci
 RUN npm install pino-papertrail
 
 FROM builder as run
