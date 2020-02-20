@@ -12,13 +12,6 @@ COPY package*.json ./
 RUN npm ci
 RUN npm install pino-papertrail
 
-FROM builder as run
-
-WORKDIR /app
-
-# copy the node_modules
-COPY --from=builder /app .
-
 # copy the rest of files
 COPY . .
 
