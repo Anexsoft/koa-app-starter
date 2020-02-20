@@ -3,19 +3,24 @@ FROM node:11.4-alpine AS builder
 # set node to run in production mode
 ENV NODE_ENV=production
 
-# copy all content (except those in .dockerignore)
-COPY . /app
 WORKDIR /app
+
+# copy package.json
+COPY package*.json ./
 
 # install all dependencies
 RUN npm install
+RUN npm install pino-papertrail
 
 FROM builder as run
 
-# install pino-papertrail
-RUN npm install pino-papertrail
+WORKDIR /app
 
-COPY --from=builder /app /app
+# copy the node_modules
+COPY --from=builder /app .
+
+# copy the rest of files
+COPY . .
 
 # expose needed port
 EXPOSE ${API_PORT}
