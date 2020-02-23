@@ -5,4 +5,5 @@
 .vscode
 azure-pipelines*.yml
 local-docker*.cmd
-.starter
+Dockerfile
+k8s-*.yml
