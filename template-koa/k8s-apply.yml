@@ -5,7 +5,7 @@ metadata:
   name: <applicationName>-dpy
   namespace: <applicationNamespace>
 spec:
-  replicas: 1
+  replicas: <kub-pod-instancecount>
   selector:
     matchLabels:
       app: <applicationName>
@@ -18,16 +18,16 @@ spec:
       containers:
       - name: <applicationName>
         # https://dev.azure.com/eagleperu/Juntoz/_wiki/wikis/Juntoz.wiki/101/Kubernetes
-        image: <mydockerregistry>/<applicationName>:latest
+        image: <mydockerregistry>/<applicationName>:<kub-pod-tag>
         ports:
         - containerPort: <applicationPort>
         resources:
           limits:
             cpu: "0.3"
             memory: "200Mi"
-          requests:
-            cpu: "0.1"
-            memory: "50Mi"
+          # requests:
+          #   cpu: "0.1"
+          #   memory: "50Mi"
         # livenessProbe:
         #   httpGet:
         #     path: /tools/probe
@@ -39,7 +39,7 @@ spec:
         - name: LOG_LEVEL
           value: info
         - name: RUN_ENV
-          value: stg
+          value: <envname>
 ---
 apiVersion: v1
 kind: Service
