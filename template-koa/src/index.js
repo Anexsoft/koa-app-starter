@@ -27,7 +27,14 @@ global.env = argv.env;
 
 // set logging
 const KoaPinoLogger = require('@juntoz/koa-pino-logger');
-var kplmw = KoaPinoLogger({ level: argv.loglevel });
+var kplmw = KoaPinoLogger({ 
+    level: argv.loglevel,
+    autoLogging: { 
+        ignorePaths: [
+            '/tools/probe'
+        ] 
+    } 
+});
 koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
 koaApp.log.debug('index-logging: success');
