@@ -26,7 +26,7 @@ const koaApp = new Koa();
 global.env = argv.env;
 
 // set logging
-const KoaPinoLogger = require('koa-pino-logger');
+const KoaPinoLogger = require('@juntoz/koa-pino-logger');
 var kplmw = KoaPinoLogger({ level: argv.loglevel });
 koaApp.use(kplmw);
 koaApp.log = kplmw.logger;
