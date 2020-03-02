@@ -20,6 +20,7 @@ process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config');
 
 // global app
 const Koa = require('koa');
+const koaHealthProbe = require('@juntoz/koa-health-probe');
 const koaApp = new Koa();
 
 // set the environment name in the global object so the entire program can read it
@@ -27,13 +28,11 @@ global.env = argv.env;
 
 // set logging
 const KoaPinoLogger = require('@juntoz/koa-pino-logger');
-var kplmw = KoaPinoLogger({ 
+var kplmw = KoaPinoLogger({
     level: argv.loglevel,
-    autoLogging: { 
-        ignorePaths: [
-            '/tools/probe'
-        ] 
-    } 
+    autoLogging: {
+        ignorePaths: [koaHealthProbe.defaultPath]
+    }
 });
 koaApp.use(kplmw);
 koaApp.log = kplmw.logger;

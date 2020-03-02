@@ -41,7 +41,8 @@ async function _initAuth(koaApp) {
         var requireHeaderName = config.get('requireHeader.headerName');
         if (requireHeaderName) {
             koaApp.use(koaRequireHeader({
-                headerName: requireHeaderName
+                headerName: requireHeaderName,
+                ignorePaths: [koaHealthProbe.defaultPath, koaPackInfo.defaultPath]
             }));
             koaApp.log.debug('app-require-header: success');
         } else {
@@ -74,9 +75,7 @@ function _post(koaApp) {
     koaHealthProbe(koaApp);
     koaApp.log.debug('app-probe: success');
 
-    koaPackInfo(koaApp, {
-        pathToPackageJson: '../package.json'
-    });
+    koaPackInfo(koaApp, { pathToPackageJson: '../package.json' });
     koaApp.log.debug('app-packinfo: success');
 }
 
