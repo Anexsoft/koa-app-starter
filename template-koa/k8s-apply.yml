@@ -5,7 +5,7 @@ metadata:
   name: <applicationName>-dpy
   namespace: <applicationNamespace>
 spec:
-  replicas: <kub-pod-instancecount>
+  replicas: __kub-pod-instancecount__
   selector:
     matchLabels:
       app: <applicationName>
@@ -17,29 +17,28 @@ spec:
     spec:
       containers:
       - name: <applicationName>
-        # https://dev.azure.com/eagleperu/Juntoz/_wiki/wikis/Juntoz.wiki/101/Kubernetes
-        image: <mydockerregistry>/<applicationName>:<kub-pod-tag>
+        image: my-docker-registry/<applicationName>:__kub-pod-tag__ # TODO: Set correct docker registry
         ports:
         - containerPort: <applicationPort>
         resources:
           limits:
-            cpu: "0.3"
+            # cpu: "0.3"
             memory: "200Mi"
           # requests:
           #   cpu: "0.1"
           #   memory: "50Mi"
-        # livenessProbe:
-        #   httpGet:
-        #     path: /tools/probe
-        #     port: <applicationPort>
-        #   initialDelaySeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /tools/probe
+            port: <applicationPort>
+          initialDelaySeconds: 3
         env:
         - name: API_PORT
           value: "<applicationPort>"
         - name: LOG_LEVEL
           value: info
         - name: RUN_ENV
-          value: <envname>
+          value: __envname__
 ---
 apiVersion: v1
 kind: Service
@@ -54,11 +53,10 @@ spec:
       targetPort: <applicationPort>
 ---
 apiVersion: getambassador.io/v2
-kind:  Mapping
+kind: Mapping
 metadata:
-  # ambassador is located in the default namespace
   name: <applicationName>-mp
 spec:
-  prefix: <path>
-  rewrite: <rewrite>
+  prefix: # TODO: set correct prefix and entity name e.g. /x/entity
+  rewrite: # TODO: remove the prefix e.g. /entity
   service: http://<applicationName>-svc.<applicationNamespace>:<applicationPort>
