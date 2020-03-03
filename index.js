@@ -8,8 +8,6 @@ const jsyaml = require('js-yaml');
 
 const run = require('./app');
 
-var starterOutputPath = null;
-
 async function doInit(initData) {
     var root = process.cwd();
 
@@ -17,12 +15,17 @@ async function doInit(initData) {
     // screw up this app, therefore append a dist folder so it will not interfere
     if (root.indexOf('koa-app-starter') >= 0) {
         root = path.resolve(root, '_test');
-        console.info('Warning: you are located in the koa-app-starter root folder');
+        console.info('Warning: you are located in the koa-app-starter root folder. Running against _test folder.');
     }
 
-    starterOutputPath = path.join(root, '.starter');
+    var starterOutputPath = path.join(root, '.starter');
 
-    var lastAnswers = await loadYamlToJson(path.join(starterOutputPath, 'answers.yml'));
+    var lastRun = await _loadYamlToJson(path.join(starterOutputPath, 'last.yml'));
+    if (lastRun) {
+        console.info(`Note: Last version applied was ${lastRun.appVersion} on UTC ${lastRun.ts}`);
+    }
+
+    var lastAnswers = await _loadYamlToJson(path.join(starterOutputPath, 'answers.yml'));
     if (!lastAnswers) {
         console.debug('Note: No answers file found.');
     }
@@ -31,13 +34,13 @@ async function doInit(initData) {
     var answers = await inquirer.prompt(_questions(root, lastAnswers));
     if (answers.go) {
         // complete the appname with the namespace
-        answers.fullappname = namespaceAndDomain(answers.appns, answers.appname);
+        answers.fullappname = _namespaceAndDomain(answers.appns, answers.appname);
 
         // save the current runtime
-        await saveRuntime(initData);
+        await _saveRuntime(starterOutputPath, initData);
 
         // save the answers first
-        await saveAnswers(answers);
+        await _saveAnswers(starterOutputPath, answers);
 
         // execute
         await run({
@@ -47,7 +50,7 @@ async function doInit(initData) {
     }
 }
 
-function namespaceAndDomain(ns, dom) {
+function _namespaceAndDomain(ns, dom) {
     return ns + '-' + dom;
 }
 
@@ -127,7 +130,7 @@ function _questions(root, lastAnswers) {
             message: (ans) => 'K8S: What should be the name of your docker image?',
             name: 'appname',
             default: lastAnswers.appname || null,
-            transformer: (input, ans, opt) => namespaceAndDomain(ans.appns, input),
+            transformer: (input, ans, opt) => _namespaceAndDomain(ans.appns, input),
             validate: (input, ans) => {
                 if (input !== '' && minOneWordLettersAndHyphen.test(input)) {
                     return true;
@@ -170,7 +173,7 @@ function _questions(root, lastAnswers) {
     ];
 }
 
-async function saveRuntime(initData) {
+async function _saveRuntime(dstPath, initData) {
     initData.ts = new Date().toISOString();
 
     var headerdoc = `
@@ -182,10 +185,10 @@ async function saveRuntime(initData) {
         headerdoc + '\n' +
         jsyaml.safeDump(initData);
 
-    await saveYaml(path.join(starterOutputPath, 'last.yml'), ymltxt);
+    await _saveYaml(path.join(dstPath, 'last.yml'), ymltxt);
 }
 
-async function saveAnswers(answers) {
+async function _saveAnswers(dstPath, answers) {
     var toSave = Object.assign({}, answers);
 
     // clear some answers that we do need to ask every time
@@ -201,10 +204,10 @@ async function saveAnswers(answers) {
         headerdoc + '\n' +
         jsyaml.safeDump(toSave);
 
-    await saveYaml(path.join(starterOutputPath, 'answers.yml'), ymltxt);
+    await _saveYaml(path.join(dstPath, 'answers.yml'), ymltxt);
 }
 
-async function loadYamlToJson(srcFile) {
+async function _loadYamlToJson(srcFile) {
     try {
         var inputContent = await fs.readFile(srcFile);
         return jsyaml.safeLoad(inputContent);
@@ -213,7 +216,7 @@ async function loadYamlToJson(srcFile) {
     }
 }
 
-async function saveYaml(destFile, yamlContent) {
+async function _saveYaml(destFile, yamlContent) {
     await fs.ensureFile(destFile);
     await fs.writeFile(destFile, yamlContent);
 }
