@@ -72,7 +72,7 @@ async function _npmInstall(dependencies, devDependencies) {
         for (let i = 0; i < elem.list.length; i++) {
             // set @latest to always force the latest option
             // this works well when the package.json already contains a version of the package.
-            var cmd = `npm install ${elem.args} ${elem.list[i]}@latest`;
+            var cmd = `npm install ${elem.args} ${elem.list[i]}@latest --no-fund --no-audit`;
             if (!_isDebugEnv()) {
                 // force sync processing because we want to wait until doing the following npm install
                 execSync(cmd, { stdio: [0, 1, 2] });
