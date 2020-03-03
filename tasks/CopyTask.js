@@ -98,7 +98,9 @@ class CopyTask {
 
         var mincode = {};
         mincode[path.basename(inPath)] = inContent;
-        var uglycode = terser.minify(mincode);
+        var uglycode = terser.minify(mincode, {
+            mangle: false
+        });
         if (uglycode.error) {
             return {
                 ok: false,
