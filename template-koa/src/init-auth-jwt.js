@@ -1,7 +1,7 @@
 const passport = require('koa-passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const _intersect = require('lodash.intersection');
+const JuntozSchema = require('@juntoz/joi-schema');
 
 var strategyName = 'jwt';
 
@@ -81,12 +81,8 @@ function _mwAuthorize(acceptRoles) {
             ctx.throw(401, 'unauthorized by roles missing');
         }
 
-        // sysadmin allows any action
-        if (!ctx.state.user.roles.includes('sysadmin')) {
-            var matched = _intersect(ctx.state.user.roles, acceptRoles);
-            if (matched.length === 0) {
-                ctx.throw(401, 'unauthorized by roles mismatch');
-            }
+        if (!JuntozSchema.utils.isAuthorized(acceptRoles, ctx.state.user.roles)) {
+            ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
         ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });

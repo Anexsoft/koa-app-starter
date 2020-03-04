@@ -6,7 +6,7 @@
   "author": "Juntoz.com",
   "license": "MIT",
   "dependencies": {
-    "@juntoz/joi-schema": "^0.1.12",
+    "@juntoz/joi-schema": "^0.1.25",
     "@juntoz/koa-health-probe": "^1.0.6",
     "@juntoz/koa-last-request": "^1.0.3",
     "@juntoz/koa-package-info": "^1.0.2",
@@ -22,7 +22,6 @@
     "koa-router": "^8.0.6",
     "koa-x-request-id": "^2.0.0",
     "lodash.get": "^4.4.2",
-    "lodash.intersection": "^4.4.0",
     "lodash.merge": "^4.6.1",
     "node-cleanup": "^2.1.2",
     "passport-jwt": "^4.0.0",
