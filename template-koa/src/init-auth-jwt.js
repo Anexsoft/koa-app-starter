@@ -77,11 +77,19 @@ function _mwAuthorize(acceptRoles) {
             ctx.throw(401, 'unauthorized by user missing');
         }
 
-        if (!ctx.state.user.roles) {
+        // NOTE: temporary hack until we get idv3 resolved on whether the claim is "role" or "roles".
+        var roles = ctx.state.user.role || ctx.state.user.roles;
+
+        if (!roles) {
             ctx.throw(401, 'unauthorized by roles missing');
         }
 
-        if (!JuntozSchema.utils.isAuthorized(acceptRoles, ctx.state.user.roles)) {
+        if (typeof roles === 'string') {
+            // if string convert to array
+            roles = [roles];
+        }
+
+        if (!JuntozSchema.utils.isAuthorized(acceptRoles, roles)) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
