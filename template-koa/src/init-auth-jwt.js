@@ -81,12 +81,15 @@ function _mwAuthorize(acceptRoles) {
             ctx.throw(401, 'unauthorized by roles missing');
         }
 
-        var matched = _intersect(ctx.state.user.roles, acceptRoles);
-        if (matched.length === 0) {
-            ctx.throw(401, 'unauthorized by roles mismatch');
+        // sysadmin allows any action
+        if (!ctx.state.user.roles.includes('sysadmin')) {
+            var matched = _intersect(ctx.state.user.roles, acceptRoles);
+            if (matched.length === 0) {
+                ctx.throw(401, 'unauthorized by roles mismatch');
+            }
         }
 
-        ctx.log.debug('passport-auth: authorized', { user: ctx.state.user, expected: acceptRoles });
+        ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });
         await next();
     };
 }
@@ -98,7 +101,7 @@ function _mwRequiresSub() {
         }
 
         if (!ctx.state.user.sub) {
-            ctx.throw(401, 'unauthorized by sub missing');
+            ctx.throw(401, 'unauthorized by user sub missing');
         }
 
         ctx.log.debug('passport-sub: authorized', { sub: ctx.state.user.sub });
