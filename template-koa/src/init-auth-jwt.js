@@ -31,7 +31,8 @@ async function initAuthJwt(koaApp, authCfg) {
     koaApp.pptMW = {
         getAuthenticate: _mwAuthenticate,
         getRequiresSub: _mwRequiresSub,
-        getAuthorizeRoles: _mwAuthorize
+        getAuthorizeRoles: _mwAuthorizeNew,
+        getAuthorizeRolesLegacy: _mwAuthorizeLegacy
     };
 }
 
@@ -62,40 +63,62 @@ function _mwAuthenticate() {
     return passport.authenticate(strategyName, { session: false });
 }
 
-function _mwAuthorize(acceptRoles) {
-    // always end in an array
-    acceptRoles = typeof acceptRoles === 'string' && acceptRoles ? [acceptRoles] : (acceptRoles || []);
-
-    if (!acceptRoles.length) {
-        throw new Error('acceptRoles is required');
-    }
+function _mwAuthorizeNew(acceptRoles) {
+    acceptRoles = __normalizeAcceptRoles(acceptRoles);
 
     // return the middleware
     return async(ctx, next) => {
-        // this middleware depends that passport has authenticated and wrote ctx.state.user
-        if (!ctx.state.user) {
-            ctx.throw(401, 'unauthorized by user missing');
-        }
+        var userRoles = __getUserRoles(ctx);
 
-        // NOTE: temporary hack until we get idv3 resolved on whether the claim is "role" or "roles".
-        var roles = ctx.state.user.role || ctx.state.user.roles;
-
-        if (!roles) {
-            ctx.throw(401, 'unauthorized by roles missing');
-        }
-
-        if (typeof roles === 'string') {
-            // if string convert to array
-            roles = [roles];
-        }
-
-        if (!JuntozSchema.utils.isAuthorized(acceptRoles, roles)) {
+        var unauthorized = !JuntozSchema.utils.isAuthorized(acceptRoles, userRoles);
+        if (!unauthorized) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
         ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });
         await next();
     };
+}
+
+function _mwAuthorizeLegacy(acceptRoles) {
+    acceptRoles = __normalizeAcceptRoles(acceptRoles);
+
+    // return the middleware
+    return async(ctx, next) => {
+        var userRoles = __getUserRoles(ctx);
+
+        var unauthorized = !JuntozSchema.utils.isAuthorizedLegacy(acceptRoles, userRoles);
+        if (!unauthorized) {
+            ctx.throw(401, 'unauthorized by roles mismatch');
+        }
+
+        ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });
+        await next();
+    };
+}
+
+function __normalizeAcceptRoles(acceptRoles) {
+    acceptRoles = typeof acceptRoles === 'string' && acceptRoles ? [acceptRoles] : (acceptRoles || []);
+    if (!acceptRoles.length) {
+        throw new Error('acceptRoles is required');
+    }
+
+    return acceptRoles;
+}
+
+function __getUserRoles(ctx) {
+    // this middleware depends that passport has authenticated and wrote ctx.state.user
+    if (!ctx.state.user) {
+        ctx.throw(401, 'unauthorized by user missing');
+    }
+
+    // NOTE: temporary hack until we get idv3 resolved on whether the claim is "role" or "roles".
+    var roles = ctx.state.user.role || ctx.state.user.roles;
+    if (!roles) {
+        ctx.throw(401, 'unauthorized by roles missing');
+    }
+
+    return roles;
 }
 
 function _mwRequiresSub() {
