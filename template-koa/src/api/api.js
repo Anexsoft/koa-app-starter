@@ -18,7 +18,9 @@ function _setupRoutes(koaApp) {
         // protected endpoint with token (could be client_credentials or sub-based)
         .get('/token/:id', koaApp.pptMW.getAuthenticate(), apiImpl.time)
         // protected endpoint with token and roles
-        .get('/roles/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRoles(['admin']), apiImpl.time)
+        .get('/roles/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRoles(['siteadmin']), apiImpl.time)
+        // protected endpoint with token and old roles
+        .get('/roleslegacy/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getAuthorizeRolesLegacy(['admin']), apiImpl.time)
         // protected endpoint with token and sub (you can add roles if needed too)
         .get('/sub/:id', koaApp.pptMW.getAuthenticate(), koaApp.pptMW.getRequiresSub(), apiImpl.time);
 
