@@ -53,8 +53,8 @@ Once you have your app running, and you want to upgrade to a new version of the 
 Every time you make a change either to the core or to a template, you need to commit and also publish a new version to npm.
 
 Steps:
-- Update package.json to have the new version (e.g. 1.2.10 > 1.2.11)
-- Run npm install. This will not upgrade any package but will replicate the new version into `package-lock.json` which should always match.
+- Go to command line and open the root folder.
+- Run the command `npm version patch` to have the new patch version (e.g. 1.2.10 > 1.2.11). If you want to update the minor or major version, you use the same command as `npm version minor/major`.
 - Commit and push.
 - Run `publish.bat` to upload to npm.
 
