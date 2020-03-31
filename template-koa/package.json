@@ -12,6 +12,7 @@
     "@juntoz/koa-package-info": "^1.0.2",
     "@juntoz/koa-pino-logger": "^2.1.5",
     "@juntoz/koa-require-header": "^1.0.6",
+    "@koa/cors": "^2.2.3",
     "config": "^3.2.5",
     "fs-extra": "^8.1.0",
     "ip": "^1.1.5",

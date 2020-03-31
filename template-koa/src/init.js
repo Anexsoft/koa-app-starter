@@ -24,6 +24,10 @@ async function _pre(koaApp) {
     koaApp.use(xRequestId({ noHyphen: true, inject: true }, koaApp));
     koaApp.log.debug('app-xrequestid: success');
 
+    // set cors allow access control allow origin.
+    const cors = require('@koa/cors');
+    koaApp.use(cors());
+
     // gather info about the last request, ignore the koa-health-probe default path
     const koaLastRequest = require('@juntoz/koa-last-request');
     koaApp.use(koaLastRequest({ pathsToIgnore: [koaHealthProbe.defaultPath] }));
