@@ -15,12 +15,22 @@ async function initAuthJwt(koaApp, authCfg) {
 
     var jwtOptions = {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        issuer: authCfg.jwt.issuer,
-        secretOrKey: authCfg.jwt.secretOrKey,
-        audience: authCfg.jwt.audience,
-        // NOTE: usually we should limit to RS256. Yet certain apis may require other algorithms, so with this setting they can decide.
+
+        // NOTE: usually we should limit to RS256. Yet certain apis may require other algorithms, so with this setting they can decide, but RS256 is always there.
         algorithms: authCfg.jwt.algorithms || ['RS256']
     };
+
+    if (authCfg.jwt.issuer) {
+        jwtOptions.issuer = authCfg.jwt.issuer;
+    }
+
+    if (authCfg.jwt.secretOrKey) {
+        jwtOptions.secretOrKey = authCfg.jwt.secretOrKey;
+    }
+
+    if (authCfg.jwt.audience) {
+        jwtOptions.audience = authCfg.jwt.audience;
+    }
 
     koaApp.log.trace(`passport-setup: strategy ${strategyName} with options ${JSON.stringify(jwtOptions)}`);
 
@@ -60,14 +70,16 @@ function getPassportVerifier(koaApp) {
 function _mwAuthenticate() {
     // NOTE: call to passport.authenticate returns a koa middleware that is going to be used at execution time to authenticate
     // the request based on the given strategy and parameters.
-    return passport.authenticate(strategyName, { session: false });
+    return passport.authenticate(strategyName, {
+        session: false
+    });
 }
 
 function _mwAuthorizeNew(acceptRoles) {
     acceptRoles = __normalizeAcceptRoles(acceptRoles);
 
     // return the middleware
-    return async(ctx, next) => {
+    return async (ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
         var unauthorized = !JuntozSchema.utils.isAuthorized(acceptRoles, userRoles);
@@ -75,7 +87,10 @@ function _mwAuthorizeNew(acceptRoles) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
-        ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });
+        ctx.log.debug('passport-auth: authorized', {
+            sub: ctx.state.user.sub,
+            expected: acceptRoles
+        });
         await next();
     };
 }
@@ -84,7 +99,7 @@ function _mwAuthorizeLegacy(acceptRoles) {
     acceptRoles = __normalizeAcceptRoles(acceptRoles);
 
     // return the middleware
-    return async(ctx, next) => {
+    return async (ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
         var unauthorized = !JuntozSchema.utils.isAuthorizedLegacy(acceptRoles, userRoles);
@@ -92,7 +107,10 @@ function _mwAuthorizeLegacy(acceptRoles) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
-        ctx.log.debug('passport-auth: authorized', { sub: ctx.state.user.sub, expected: acceptRoles });
+        ctx.log.debug('passport-auth: authorized', {
+            sub: ctx.state.user.sub,
+            expected: acceptRoles
+        });
         await next();
     };
 }
@@ -122,7 +140,7 @@ function __getUserRoles(ctx) {
 }
 
 function _mwRequiresSub() {
-    return async(ctx, next) => {
+    return async (ctx, next) => {
         if (!ctx.state.user) {
             ctx.throw(401, 'unauthorized by user missing');
         }
@@ -131,7 +149,9 @@ function _mwRequiresSub() {
             ctx.throw(401, 'unauthorized by user sub missing');
         }
 
-        ctx.log.debug('passport-sub: authorized', { sub: ctx.state.user.sub });
+        ctx.log.debug('passport-sub: authorized', {
+            sub: ctx.state.user.sub
+        });
         await next();
     };
 }
