@@ -14,38 +14,19 @@ const argv = require('yargs')
 
 // https://github.com/lorenwest/node-config
 // tell to the CONFIG module to load the config file based on the environment that is running
-process.env.NODE_CONFIG_ENV = argv.env;
+// set the environment name in the global object so the entire program can read it
+process.env.NODE_CONFIG_ENV = global.env = argv.env;
 // tell to the CONFIG module to load files from this folder
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config');
 
 // global app
 const Koa = require('koa');
-const koaHealthProbe = require('@juntoz/koa-health-probe');
 const koaApp = new Koa();
 
-// set the environment name in the global object so the entire program can read it
-global.env = argv.env;
-
-// set logging
-const KoaPinoLogger = require('@juntoz/koa-pino-logger');
-var kplmw = KoaPinoLogger({
-    level: argv.loglevel,
-    autoLogging: {
-        ignorePaths: [koaHealthProbe.defaultPath]
-    }
-});
-koaApp.use(kplmw);
-koaApp.log = kplmw.logger;
-koaApp.log.debug('index-logging: success');
-
-const config = require('config');
-koaApp.getAppName = () => config.get('name');
-koaApp.log.trace('index-config: config sources object', config.util.getConfigSources());
-koaApp.log.info(`index-config: success, app (${koaApp.getAppName()},${global.env})`);
+const appInit = require('./init');
 
 // init application
-const appInit = require('./init');
-appInit(koaApp, argv.module);
+appInit(koaApp, argv.module, argv.loglevel);
 koaApp.log.debug('index-app: success');
 
 // run

@@ -4,7 +4,13 @@ const config = require('config');
 const _initAuthJwt = require('./init-auth-jwt');
 const koaRequireHeader = require('@juntoz/koa-require-header');
 
-async function init(koaApp, moduleEntryPath) {
+async function init(koaApp, moduleEntryPath, loglevel) {
+    // set logging
+    setLog(koaApp, loglevel);
+
+    // load config
+    loadConfig(koaApp);
+
     // pre-processing
     await _pre(koaApp);
 
@@ -16,6 +22,27 @@ async function init(koaApp, moduleEntryPath) {
 
     // post-processing
     _post(koaApp);
+}
+
+function setLog(koaApp, loglevel) {
+    const KoaPinoLogger = require('@juntoz/koa-pino-logger');
+    var kplmw = KoaPinoLogger({
+        level: loglevel,
+        autoLogging: {
+            ignorePaths: [koaHealthProbe.defaultPath]
+        }
+    });
+    koaApp.use(kplmw);
+    koaApp.log = kplmw.logger;
+    koaApp.log.debug('index-log: success');
+}
+
+function loadConfig(koaApp) {
+    const config = require('config');
+    koaApp.log.trace('app-config: config sources object', config.util.getConfigSources());
+
+    koaApp.getAppName = () => config.get('name');
+    koaApp.log.info(`app-config: success, app (${koaApp.getAppName()},${global.env})`);
 }
 
 async function _pre(koaApp) {
