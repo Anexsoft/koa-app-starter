@@ -79,7 +79,7 @@ function _mwAuthorizeNew(acceptRoles) {
     acceptRoles = __normalizeAcceptRoles(acceptRoles);
 
     // return the middleware
-    return async (ctx, next) => {
+    return async(ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
         var unauthorized = !JuntozSchema.utils.isAuthorized(acceptRoles, userRoles);
@@ -99,7 +99,7 @@ function _mwAuthorizeLegacy(acceptRoles) {
     acceptRoles = __normalizeAcceptRoles(acceptRoles);
 
     // return the middleware
-    return async (ctx, next) => {
+    return async(ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
         var unauthorized = !JuntozSchema.utils.isAuthorizedLegacy(acceptRoles, userRoles);
@@ -140,7 +140,7 @@ function __getUserRoles(ctx) {
 }
 
 function _mwRequiresSub() {
-    return async (ctx, next) => {
+    return async(ctx, next) => {
         if (!ctx.state.user) {
             ctx.throw(401, 'unauthorized by user missing');
         }
