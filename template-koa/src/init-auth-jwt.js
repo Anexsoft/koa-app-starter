@@ -82,8 +82,7 @@ function _mwAuthorizeNew(acceptRoles) {
     return async(ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
-        var unauthorized = !JuntozSchema.utils.isAuthorized(acceptRoles, userRoles);
-        if (!unauthorized) {
+        if (!JuntozSchema.Authorize.isAuthorized(acceptRoles, userRoles)) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
@@ -102,7 +101,7 @@ function _mwAuthorizeLegacy(acceptRoles) {
     return async(ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
-        var unauthorized = !JuntozSchema.utils.isAuthorizedLegacy(acceptRoles, userRoles);
+        var unauthorized = !JuntozSchema.Authorize.isAuthorizedLegacy(acceptRoles, userRoles);
         if (!unauthorized) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
