@@ -101,8 +101,7 @@ function _mwAuthorizeLegacy(acceptRoles) {
     return async(ctx, next) => {
         var userRoles = __getUserRoles(ctx);
 
-        var unauthorized = !JuntozSchema.Authorize.isAuthorizedLegacy(acceptRoles, userRoles);
-        if (!unauthorized) {
+        if (!JuntozSchema.Authorize.isAuthorizedLegacy(acceptRoles, userRoles)) {
             ctx.throw(401, 'unauthorized by roles mismatch');
         }
 
